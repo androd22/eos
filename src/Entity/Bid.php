@@ -23,7 +23,7 @@ class Bid
     #[ORM\Column(length: 20)]
     private ?string $status = null;
 
-    #[ORM\Column(length: 12, nullable: true)]
+    #[ORM\Column(length: 45, nullable: true)]
     private ?string $ipAddress = null;
 
     #[ORM\ManyToOne(inversedBy: 'bids')]
@@ -88,12 +88,12 @@ class Bid
         return $this;
     }
 
-    public function getBidderId(): ?User
+    public function getBidder(): ?User
     {
         return $this->bidder;
     }
 
-    public function setBidderId(?User $bidder): static
+    public function setBidder(?User $bidder): static
     {
         $this->bidder = $bidder;
 

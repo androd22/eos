@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:8.0
+    image: mysql:8.0.31
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: eos_db_test
@@ -15,7 +15,7 @@ services:
     image: ${IMAGES_PREFIX:-}app-php
     environment:
       APP_ENV: test
-      DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
+#      DATABASE_URL: mysql://root:secret@db:3306/eos_db?serverVersion=8.0
       # Mercure configuration
       MERCURE_URL: http://php/.well-known/mercure
       MERCURE_PUBLIC_URL: http://localhost/.well-known/mercure

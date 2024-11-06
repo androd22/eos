@@ -30,9 +30,13 @@ jobs:
         run: |
           docker compose -f compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
           docker compose -f compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
 
-      - name: Run tests
-        run: docker compose -f compose.test.yml exec -T php bin/phpunit
+      - name: Run entity tests
+        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+
+      - name: Run repository tests
+        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
       - name: Code style check
         run: |
