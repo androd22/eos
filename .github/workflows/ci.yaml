@@ -41,14 +41,14 @@ jobs:
       - name: Start containers
         run: docker compose -f compose.test.yaml up -d --wait
 
-      - name: Check running containers
-        run: docker compose -f compose.test.yaml ps
+      - name: Fix permissions
+        run: docker compose -f compose.test.yaml exec -T php chmod +x bin/console
 
       - name: Create Database
         run: |
-          docker compose -f compose.test.yaml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
-          docker compose -f compose.test.yaml exec -T php bin/console doctrine:schema:create --env=test
-          docker compose -f compose.test.yaml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run tests
         run: |
