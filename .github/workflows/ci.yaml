@@ -24,8 +24,25 @@ jobs:
       - name: Copy .env.test
         run: php -r "file_exists('.env.test') || copy('.env.test.dist', '.env.test');"
 
-      - name: List files in root directory
-        run: ls -la
+      - name: Debug directory structure and files
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "\nListing current directory:"
+          ls -la
+          echo "\nChecking for compose.test.yaml:"
+          if [ -f "compose.test.yaml" ]; then
+            echo "compose.test.yaml exists"
+            cat compose.test.yaml
+          else
+            echo "compose.test.yaml does not exist"
+          fi
+          echo "\nChecking for docker-compose.yml:"
+          if [ -f "docker-compose.yml" ]; then
+            echo "docker-compose.yml exists"
+          else
+            echo "docker-compose.yml does not exist"
+          fi
 
       - name: Cache Composer packages
         id: composer-cache
@@ -39,16 +56,35 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Start containers
-        run: docker compose -f compose.test.yaml up -d
+      - name: Start containers and show docker info
+        run: |
+          echo "Docker version:"
+          docker --version
+          echo "\nDocker Compose version:"
+          docker compose version
+          echo "\nStarting containers..."
+          docker compose -f compose.test.yaml up -d
+          echo "\nListing running containers:"
+          docker compose -f compose.test.yaml ps
+          echo "\nChecking container logs:"
+          docker compose -f compose.test.yaml logs
 
       - name: Wait for PHP container to be ready
         run: |
-          while ! docker compose -f compose.test.yaml exec -T php true; do
+          echo "Waiting for PHP container..."
+          timeout=60
+          until docker compose -f compose.test.yaml exec -T php true; do
+            echo "Still waiting... ($timeout seconds remaining)"
             sleep 5
+            timeout=$((timeout-5))
+            if [ $timeout -le 0 ]; then
+              echo "Timeout waiting for PHP container"
+              exit 1
+            fi
           done
+          echo "PHP container is ready"
 
-      - name: Show PHP container logs (for debugging)
+      - name: Show PHP container logs
         run: docker compose -f compose.test.yaml logs php
 
       - name: Install Composer dependencies in PHP container
@@ -56,9 +92,18 @@ jobs:
 
       - name: Wait for MySQL
         run: |
-          while ! docker compose -f compose.test.yaml exec -T db mysqladmin ping -h"localhost" --silent; do
+          echo "Waiting for MySQL..."
+          timeout=60
+          until docker compose -f compose.test.yaml exec -T db mysqladmin ping -h"localhost" --silent; do
+            echo "Still waiting... ($timeout seconds remaining)"
             sleep 1
+            timeout=$((timeout-1))
+            if [ $timeout -le 0 ]; then
+              echo "Timeout waiting for MySQL"
+              exit 1
+            fi
           done
+          echo "MySQL is ready"
 
       - name: Create Database
         run: |
