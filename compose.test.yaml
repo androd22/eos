@@ -12,7 +12,7 @@ services:
 
   php:
     #    image: dunglas/frankenphp
-    image: ${IMAGES_PREFIX:-}app-php
+    image: php:8.2-cli
     environment:
       APP_ENV: test
 #      DATABASE_URL: mysql://root:secret@db:3306/eos_db?serverVersion=8.0
