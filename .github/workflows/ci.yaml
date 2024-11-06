@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start containers
+        run: docker compose -f compose.test.yml up -d
+
+      - name: Wait for MySQL
+        run: |
+          while ! docker compose -f compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
+            sleep 1
+          done
+
+      - name: Install dependencies
+        run: docker compose -f compose.test.yml exec -T php composer install
+
+      - name: Create test database
+        run: |
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
+
+      - name: Run tests
+        run: docker compose -f compose.test.yml exec -T php bin/phpunit
+
+      - name: Code style check
+        run: |
+          docker compose -f compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
+          docker compose -f compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Static analysis
+        run: |
+          docker compose -f compose.test.yml exec -T php composer require --dev phpstan/phpstan
+          docker compose -f compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -f compose.test.yml logs
+
+      - name: Clean up
+        if: always()
+        run: docker compose -f compose.test.yml down -v

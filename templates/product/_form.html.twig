@@ -1,0 +1,64 @@
+{{ form_start(form, { 'attr': {'id': 'product-form', 'enctype': 'multipart/form-data'} }) }}
+    {{ form_row(form.batch_number) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.weight) }}
+    {{ form_row(form.initialPrice) }}
+    {{ form_row(form.finalPrice) }}
+
+
+<div id="image-fields">
+    {{ form_widget(form.images) }}
+</div>
+
+<button type="button" id="add-image-field">Add Another Image</button>
+<div id="preview"></div>
+
+
+{{ form_end(form) }}
+
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('product-form');
+            const addImageFieldButton = document.getElementById('add-image-field');
+            const imageFieldsContainer = document.getElementById('image-fields');
+            const previewContainer = document.getElementById('preview');
+
+            // Gestion des ajouts dynamiques de champs de fichiers
+            let imageFieldCount = document.querySelectorAll('.image-upload').length;
+
+            addImageFieldButton.addEventListener('click', function() {
+                imageFieldCount++;
+                const newField = document.createElement('input');
+                newField.type = 'file';
+                newField.name = `images[${imageFieldCount}]`;
+                newField.classList.add('image-upload');
+                imageFieldsContainer.appendChild(newField);
+            });
+
+            // Prévisualisation des images sélectionnées
+            form.addEventListener('change', function(event) {
+                if (event.target.classList.contains('image-upload')) {
+                    const files = event.target.files;
+
+                    if (files.length > 0) {
+                        Array.from(files).forEach(file => {
+                            const reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.width = 100;
+                                previewContainer.appendChild(img);
+                            };
+
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
