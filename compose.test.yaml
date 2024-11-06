@@ -3,6 +3,8 @@ services:
     image: dunglas/frankenphp
     environment:
       APP_ENV: test
+    env_file:
+      - .env.test
     volumes:
       - .:/app
     working_dir: /app
@@ -19,10 +21,8 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Autorise un mot de passe vide pour le root
       MYSQL_DATABASE: eos_db_test
-      MYSQL_USER: symfony
-      MYSQL_PASSWORD: symfony
     ports:
       - '3306:3306'
     healthcheck:
@@ -36,8 +36,6 @@ services:
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: db
-      PMA_USER: root
-      PMA_PASSWORD: secret
     depends_on:
       db:
         condition: service_healthy
