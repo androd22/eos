@@ -5,7 +5,10 @@ services:
       APP_ENV: test
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db_test?serverVersion=8.0
     volumes:
-      - .:/app
+      - .:/app:rw
+    working_dir: /app
+    user: "${UID:-1000}:${GID:-1000}"
+    command: php -S 0.0.0.0:80 -t public
     depends_on:
       - db
 
