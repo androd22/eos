@@ -14,50 +14,44 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug directory
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Contents:"
-          ls -la
-
       - name: Start containers
-        run: docker compose -f eos/compose.test.yml up -d
+        run: docker compose -f compose.test.yml up -d
 
       - name: Wait for MySQL
         run: |
-          while ! docker compose -f eos/compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
+          while ! docker compose -f compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
             sleep 1
           done
 
       - name: Install dependencies
-        run: docker compose -f eos/compose.test.yml exec -T php composer install
+        run: docker compose -f compose.test.yml exec -T php composer install
 
       - name: Create test database
         run: |
-          docker compose -f eos/compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
-          docker compose -f eos/compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
-          docker compose -f eos/compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run entity tests
-        run: docker compose -f eos/compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
 
       - name: Run repository tests
-        run: docker compose -f eos/compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
+        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
       - name: Code style check
         run: |
-          docker compose -f eos/compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
-          docker compose -f eos/compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
+          docker compose -f compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
+          docker compose -f compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: Static analysis
         run: |
-          docker compose -f eos/compose.test.yml exec -T php composer require --dev phpstan/phpstan
-          docker compose -f eos/compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
+          docker compose -f compose.test.yml exec -T php composer require --dev phpstan/phpstan
+          docker compose -f compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
 
       - name: Show logs on failure
         if: failure()
-        run: docker compose -f eos/compose.test.yml logs
+        run: docker compose -f compose.test.yml logs
 
       - name: Clean up
         if: always()
-        run: docker compose -f eos/compose.test.yml down -v
+        run: docker compose -f compose.test.yml down -v
