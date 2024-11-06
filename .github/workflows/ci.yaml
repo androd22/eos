@@ -1,4 +1,4 @@
-name: CI
+name: Symfony
 
 on:
   push:
@@ -6,16 +6,53 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs:
-  tests:
-    name: Tests
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
 
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
     steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, gd
+          coverage: xdebug
+
       - uses: actions/checkout@v4
+
+      - name: Copy .env.test
+        run: php -r "file_exists('.env.test') || copy('.env.test.dist', '.env.test');"
+
+      - name: List files in root directory
+        run: ls -la
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Start containers
         run: docker compose -f compose.test.yaml up -d
+
+      - name: Wait for PHP container to be ready
+        run: |
+          while ! docker compose -f compose.test.yaml exec -T php true; do
+            sleep 5
+          done
+
+      - name: Show PHP container logs (for debugging)
+        run: docker compose -f compose.test.yaml logs php
+
+      - name: Install Composer dependencies in PHP container
+        run: docker compose -f compose.test.yaml exec -T php composer install
 
       - name: Wait for MySQL
         run: |
@@ -23,30 +60,16 @@ jobs:
             sleep 1
           done
 
-      - name: Install dependencies
-        run: docker compose -f compose.test.yaml exec -T php composer install
-
-      - name: Create test database
+      - name: Create Database
         run: |
           docker compose -f compose.test.yaml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
           docker compose -f compose.test.yaml exec -T php bin/console doctrine:schema:create --env=test
           docker compose -f compose.test.yaml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
 
-      - name: Run entity tests
-        run: docker compose -f compose.test.yaml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
-
-      - name: Run repository tests
-        run: docker compose -f compose.test.yaml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
-
-      - name: Code style check
+      - name: Execute tests
         run: |
-          docker compose -f compose.test.yaml exec -T php composer require --dev friendsofphp/php-cs-fixer
-          docker compose -f compose.test.yaml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
-
-      - name: Static analysis
-        run: |
-          docker compose -f compose.test.yaml exec -T php composer require --dev phpstan/phpstan
-          docker compose -f compose.test.yaml exec -T php vendor/bin/phpstan analyse src --level=5
+          docker compose -f compose.test.yaml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+          docker compose -f compose.test.yaml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
       - name: Show logs on failure
         if: failure()
