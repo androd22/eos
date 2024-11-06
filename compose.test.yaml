@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:8.0.31
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: eos_db_test
@@ -9,20 +9,29 @@ services:
     ports:
       - '3306:3306'
 
-
   php:
-    #    image: dunglas/frankenphp
-    image: php:8.2-cli
+    image: ${IMAGES_PREFIX:-}app-php
     environment:
       APP_ENV: test
-#      DATABASE_URL: mysql://root:secret@db:3306/eos_db?serverVersion=8.0
-      # Mercure configuration
-      MERCURE_URL: http://php/.well-known/mercure
-      MERCURE_PUBLIC_URL: http://localhost/.well-known/mercure
-      MERCURE_JWT_SECRET: test_secret
-      MERCURE_PUBLISHER_JWT_KEY: test_key
-      MERCURE_SUBSCRIBER_JWT_KEY: test_key
+      DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db_test?serverVersion=8.0
     volumes:
-      - .:/app  # Seul le volume nécessaire pour les tests
+      - .:/app
     depends_on:
       - db
+
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: secret
+    depends_on:
+      - db
+
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'
+
+# Volumes supprimés car non nécessaires pour les tests
