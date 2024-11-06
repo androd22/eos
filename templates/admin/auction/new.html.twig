@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Auction{% endblock %}
+
+{% block body %}
+    <h1>Create new Auction</h1>
+
+    {{ include('admin/auction/_form.html.twig') }}
+
+    <a href="{{ path('app_admin_auction_index') }}">back to list</a>
+{% endblock %}

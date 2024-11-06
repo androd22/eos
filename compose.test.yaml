@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: eos_db_test
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - '3306:3306'
+
+
+  php:
+    #    image: dunglas/frankenphp
+    image: ${IMAGES_PREFIX:-}app-php
+    environment:
+      APP_ENV: test
+      DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
+      # Mercure configuration
+      MERCURE_URL: http://php/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://localhost/.well-known/mercure
+      MERCURE_JWT_SECRET: test_secret
+      MERCURE_PUBLISHER_JWT_KEY: test_key
+      MERCURE_SUBSCRIBER_JWT_KEY: test_key
+    volumes:
+      - .:/app  # Seul le volume nécessaire pour les tests
+    depends_on:
+      - db

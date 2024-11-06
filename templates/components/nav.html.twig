@@ -1,0 +1,54 @@
+<header class="fixed w-full z-50">
+    <div class="container-fluid mx-auto">
+        <nav class="w-full royal-gradient py-3">
+            <div class="w-11/12 lg:w-9/12 mx-auto">
+                {# Desktop et Mobile Menu #}
+                <div class="flex justify-between items-center">
+                    {# Logo et Titre #}
+                    <div class="flex items-center">
+                        <a href="{{ path("app_home") }}">
+                            <img src="{{ asset("img/3eos-logo.png") }}" class="w-24 md:w-32" alt="logo-3eos">
+                        </a>
+                        <h1 class="text-xl md:text-2xl font-bold ps-2">
+                            <a href="{{ path("app_home") }}">
+                                <span class="golden-text">Enchères Et En</span>
+                                <span class="text-white"> Os</span>
+                            </a>
+                        </h1>
+                    </div>
+
+                    {# Bouton Menu Mobile #}
+                    {# nav.html.twig #}
+                    {# Modifie le bouton menu #}
+                    <button id="menu-toggle" class="lg:hidden text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
+                    {# Menu Desktop #}
+                    <div class="hidden lg:flex items-center space-x-12">
+                        <a href="#mission" class="menu-link">Notre Mission</a>
+                        <a href="#auctions" class="menu-link">Enchères</a>
+                        <a href="#impact" class="menu-link">Impact</a>
+                        <button class="btn-primary px-8 py-3 rounded-full font-medium hover-lift">
+                            <a href="{{ path("app_login") }}">Se connecter</a>
+                        </button>
+                    </div>
+                </div>
+
+                {# Menu Mobile #}
+                <div id="mobile-menu" class="hidden lg:hidden mt-4">
+                    <div class="flex flex-col space-y-4">
+                        <a href="#mission" class="menu-link block py-2">Notre Mission</a>
+                        <a href="#auctions" class="menu-link block py-2">Enchères</a>
+                        <a href="#impact" class="menu-link block py-2">Impact</a>
+                        <button class="btn-primary w-full py-3 rounded-full font-medium">
+                            <a href="{{ path("app_login") }}">Se connecter</a>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
