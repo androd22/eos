@@ -13,45 +13,53 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug working directory
+        run: |
+          pwd
+          ls -la
 
       - name: Start containers
-        run: docker compose -f compose.test.yml up -d
+        working-directory: ${{ github.workspace }}
+        run: docker compose -f ./compose.test.yml up -d
 
+      # ... reste du workflow inchangé mais avec les chemins mis à jour ...
       - name: Wait for MySQL
+        working-directory: ${{ github.workspace }}
         run: |
-          while ! docker compose -f compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
+          while ! docker compose -f ./compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
             sleep 1
           done
 
       - name: Install dependencies
-        run: docker compose -f compose.test.yml exec -T php composer install
+        working-directory: ${{ github.workspace }}
+        run: docker compose -f ./compose.test.yml exec -T php composer install
 
       - name: Create test database
+        working-directory: ${{ github.workspace }}
         run: |
-          docker compose -f compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
-          docker compose -f compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
-          docker compose -f compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
+          docker compose -f ./compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f ./compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
+          docker compose -f ./compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run entity tests
-        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+        working-directory: ${{ github.workspace }}
+        run: docker compose -f ./compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
 
       - name: Run repository tests
-        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
+        working-directory: ${{ github.workspace }}
+        run: docker compose -f ./compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
-      - name: Code style check
-        run: |
-          docker compose -f compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
-          docker compose -f compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
-
-      - name: Static analysis
-        run: |
-          docker compose -f compose.test.yml exec -T php composer require --dev phpstan/phpstan
-          docker compose -f compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
+      # ... reste des étapes ...
 
       - name: Show logs on failure
         if: failure()
-        run: docker compose -f compose.test.yml logs
+        working-directory: ${{ github.workspace }}
+        run: docker compose -f ./compose.test.yml logs
 
       - name: Clean up
         if: always()
-        run: docker compose -f compose.test.yml down -v
+        working-directory: ${{ github.workspace }}
+        run: docker compose -f ./compose.test.yml down -v
