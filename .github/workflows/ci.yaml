@@ -14,64 +14,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug and set working directory
+      - name: Debug directory
         run: |
           echo "Current directory: $(pwd)"
-          echo "Listing root content:"
-          ls -la
-          cd eos
-          echo "Changed to eos directory: $(pwd)"
-          echo "Listing eos content:"
+          echo "Contents:"
           ls -la
 
       - name: Start containers
-        working-directory: ./eos
-        run: docker compose -f compose.test.yml up -d
+        run: docker compose -f eos/compose.test.yml up -d
 
       - name: Wait for MySQL
-        working-directory: ./eos
         run: |
-          while ! docker compose -f compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
+          while ! docker compose -f eos/compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
             sleep 1
           done
 
       - name: Install dependencies
-        working-directory: ./eos
-        run: docker compose -f compose.test.yml exec -T php composer install
+        run: docker compose -f eos/compose.test.yml exec -T php composer install
 
       - name: Create test database
-        working-directory: ./eos
         run: |
-          docker compose -f compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
-          docker compose -f compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
-          docker compose -f compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
+          docker compose -f eos/compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f eos/compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
+          docker compose -f eos/compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run entity tests
-        working-directory: ./eos
-        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+        run: docker compose -f eos/compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
 
       - name: Run repository tests
-        working-directory: ./eos
-        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
+        run: docker compose -f eos/compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
       - name: Code style check
-        working-directory: ./eos
         run: |
-          docker compose -f compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
-          docker compose -f compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
+          docker compose -f eos/compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
+          docker compose -f eos/compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: Static analysis
-        working-directory: ./eos
         run: |
-          docker compose -f compose.test.yml exec -T php composer require --dev phpstan/phpstan
-          docker compose -f compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
+          docker compose -f eos/compose.test.yml exec -T php composer require --dev phpstan/phpstan
+          docker compose -f eos/compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
 
       - name: Show logs on failure
         if: failure()
-        working-directory: ./eos
-        run: docker compose -f compose.test.yml logs
+        run: docker compose -f eos/compose.test.yml logs
 
       - name: Clean up
         if: always()
-        working-directory: ./eos
-        run: docker compose -f compose.test.yml down -v
+        run: docker compose -f eos/compose.test.yml down -v
