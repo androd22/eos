@@ -13,53 +13,65 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Debug working directory
+      - name: Debug and set working directory
         run: |
-          pwd
+          echo "Current directory: $(pwd)"
+          echo "Listing root content:"
+          ls -la
+          cd eos
+          echo "Changed to eos directory: $(pwd)"
+          echo "Listing eos content:"
           ls -la
 
       - name: Start containers
-        working-directory: ${{ github.workspace }}
-        run: docker compose -f ./compose.test.yml up -d
+        working-directory: ./eos
+        run: docker compose -f compose.test.yml up -d
 
-      # ... reste du workflow inchangé mais avec les chemins mis à jour ...
       - name: Wait for MySQL
-        working-directory: ${{ github.workspace }}
+        working-directory: ./eos
         run: |
-          while ! docker compose -f ./compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
+          while ! docker compose -f compose.test.yml exec -T db mysqladmin ping -h"localhost" --silent; do
             sleep 1
           done
 
       - name: Install dependencies
-        working-directory: ${{ github.workspace }}
-        run: docker compose -f ./compose.test.yml exec -T php composer install
+        working-directory: ./eos
+        run: docker compose -f compose.test.yml exec -T php composer install
 
       - name: Create test database
-        working-directory: ${{ github.workspace }}
+        working-directory: ./eos
         run: |
-          docker compose -f ./compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
-          docker compose -f ./compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
-          docker compose -f ./compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:schema:create --env=test
+          docker compose -f compose.test.yml exec -T php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run entity tests
-        working-directory: ${{ github.workspace }}
-        run: docker compose -f ./compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+        working-directory: ./eos
+        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
 
       - name: Run repository tests
-        working-directory: ${{ github.workspace }}
-        run: docker compose -f ./compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
+        working-directory: ./eos
+        run: docker compose -f compose.test.yml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
-      # ... reste des étapes ...
+      - name: Code style check
+        working-directory: ./eos
+        run: |
+          docker compose -f compose.test.yml exec -T php composer require --dev friendsofphp/php-cs-fixer
+          docker compose -f compose.test.yml exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Static analysis
+        working-directory: ./eos
+        run: |
+          docker compose -f compose.test.yml exec -T php composer require --dev phpstan/phpstan
+          docker compose -f compose.test.yml exec -T php vendor/bin/phpstan analyse src --level=5
 
       - name: Show logs on failure
         if: failure()
-        working-directory: ${{ github.workspace }}
-        run: docker compose -f ./compose.test.yml logs
+        working-directory: ./eos
+        run: docker compose -f compose.test.yml logs
 
       - name: Clean up
         if: always()
-        working-directory: ${{ github.workspace }}
-        run: docker compose -f ./compose.test.yml down -v
+        working-directory: ./eos
+        run: docker compose -f compose.test.yml down -v
