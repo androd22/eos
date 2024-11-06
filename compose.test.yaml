@@ -5,12 +5,18 @@ services:
       APP_ENV: test
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db_test?serverVersion=8.0
     volumes:
-      - .:/app:rw
+      - .:/app
     working_dir: /app
-    user: "${UID:-1000}:${GID:-1000}"
     command: php -S 0.0.0.0:80 -t public
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.0
@@ -21,6 +27,12 @@ services:
       MYSQL_PASSWORD: symfony
     ports:
       - '3306:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "symfony", "-psymfony"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   phpmyadmin:
     image: phpmyadmin
@@ -30,7 +42,8 @@ services:
       PMA_USER: root
       PMA_PASSWORD: secret
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   mailhog:
     image: mailhog/mailhog
