@@ -41,14 +41,15 @@ class Auction
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $celebrityName = null;
-
     /**
      * @var Collection<int, Product>
      */
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'auction')]
     private Collection $products;
+
+    #[ORM\ManyToOne(inversedBy: 'auctions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Celebrity $celebrity = null;
 
     public function __construct()
     {
@@ -155,18 +156,7 @@ class Auction
 
         return $this;
     }
-
-    public function getCelebrityName(): ?string
-    {
-        return $this->celebrityName;
-    }
-
-    public function setCelebrityName(string $celebrityName): static
-    {
-        $this->celebrityName = $celebrityName;
-
-        return $this;
-    }
+    
 
     /**
      * @return Collection<int, Product>
@@ -194,6 +184,18 @@ class Auction
                 $product->setAuction(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCelebrity(): ?Celebrity
+    {
+        return $this->celebrity;
+    }
+
+    public function setCelebrity(?Celebrity $celebrity): static
+    {
+        $this->celebrity = $celebrity;
 
         return $this;
     }

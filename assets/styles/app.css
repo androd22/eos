@@ -18,6 +18,9 @@
     color :#1D365B;,
 }
 
+.bg-custom-gradient{
+    background: linear-gradient(135deg, rgb(232, 201, 139) 0%, rgba(212, 176, 84, 0.1) 100%);
+}
 body {
     font-family: 'Inter', sans-serif;
 }

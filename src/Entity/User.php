@@ -48,7 +48,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $image = null;
 
     #[ORM\Column]
-    private ?bool $isKycVerified = null;
+    private ?bool $isKycVerified = false;
 
     #[ORM\Column]
     private bool $isVerified = false;
