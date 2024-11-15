@@ -2,48 +2,44 @@
 
 namespace App\Form;
 
-use App\Entity\Auction;
-use App\Entity\User;
+use App\Entity\Celebrity;
+use App\Entity\Profession;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AuctionType extends AbstractType
+class CelebrityType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
+            ->add('realFirstName', TextType::class, [
                 'label' => 'Prénom',
                 'attr' => [
                     'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 ]
             ])
-            ->add('createdAt', DateTimeType::class, [
-                'label' => 'Date de début',
-                'widget' => 'single_text',
+            ->add('realLastName', TextType::class, [
+                'label' => 'Nom',
                 'attr' => [
                     'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 ]
             ])
-            ->add('startedAt', DateTimeType::class, [
-                'label' => 'Date',
-                'widget' => 'single_text',
+            ->add('stageName', TextType::class, [
+                'label' => 'Nom de scene',
                 'attr' => [
                     'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 ]
             ])
-            ->add('finishedAt', DateTimeType::class, [
-                'label' => 'Date de fin',
-                'widget' => 'single_text',
+            ->add('biography', TextareaType::class, [
+                'label' => 'Biographie',
                 'attr' => [
-                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
+                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50',
+                    'rows' => 5
                 ]
             ])
             ->add('image', FileType::class, [
@@ -52,26 +48,14 @@ class AuctionType extends AbstractType
                 'attr' => [
                     'class' => 'mt-1 block w-full'
                 ]
-            ])
-            ->add('description', TextareaType::class, [
-                'attr' => [
-                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
-                ]
-            ])
+            ]);
         ;
-//            ->add('startingPrice', MoneyType::class, [
-//                'label' => 'Prix de départ',
-//                'currency' => 'EUR',
-//                'attr' => [
-//                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
-//                ]
-//            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Auction::class,
+            'data_class' => Celebrity::class,
         ]);
     }
 }

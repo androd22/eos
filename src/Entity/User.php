@@ -62,7 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Bid>
      */
-    #[ORM\OneToMany(targetEntity: Bid::class, mappedBy: 'bidder_id')]
+    #[ORM\OneToMany(targetEntity: Bid::class, mappedBy: 'bidder')]
     private Collection $bids;
 
     /**
@@ -266,7 +266,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->bids->contains($bid)) {
             $this->bids->add($bid);
-            $bid->setBidderId($this);
+            $bid->setBidder($this);
         }
 
         return $this;
@@ -276,8 +276,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->bids->removeElement($bid)) {
             // set the owning side to null (unless already changed)
-            if ($bid->getBidderId() === $this) {
-                $bid->setBidderId(null);
+            if ($bid->getBidder() === $this) {
+                $bid->setBidder(null);
             }
         }
 

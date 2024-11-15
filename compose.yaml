@@ -12,9 +12,10 @@ services:
       - '3308:3306'
     volumes:
       - ./frankenphp/mysql/data:/var/lib/mysql
+    networks:
+      - app_network
 
   php:
-#    image: dunglas/frankenphp
     image: ${IMAGES_PREFIX:-}app-php
     container_name: phpfpeos
     restart: unless-stopped
@@ -29,12 +30,23 @@ services:
     environment:
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
       SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
-      # Mercure configuration
-      MERCURE_PUBLISHER_JWT_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.q4qysZ36LlnWqrk4uqGDw_S0Q9KladX0QysuoKQvvJo'
-      MERCURE_SUBSCRIBER_JWT_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.jlN3LQ5qR0zyA0UShqwEKAh-N4XYHjP2NwD6HxI35V0'
-      MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
-      MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}/.well-known/mercure}
-      MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      # Mercure configuration pour FrankenPHP intégré
+      MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      MERCURE_JWT_SECRET: '!ChangeThisMercureHubJWTSecretKey!'
+      MERCURE_URL: http://mercure/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
+      # Extra configuration
+      MERCURE_EXTRA_DIRECTIVES: |
+        anonymous
+        cors_origins *
+        publish_origins *
+        subscribe_origins *
+        topics auction/*
+        subscriptions
+        demo
+        heartbeat 40s
+      # The two next lines can be removed after initial installation
       SYMFONY_VERSION: ${SYMFONY_VERSION:-}
       STABILITY: ${STABILITY:-stable}
     volumes:
@@ -42,6 +54,34 @@ services:
       - caddy_config:/config
     depends_on:
       - db
+      - mercure
+    networks:
+      - app_network
+
+  mercure:
+    container_name: mereos
+    image: dunglas/mercure
+    environment:
+      MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      SERVER_NAME: ":80"
+      PUBLISH_ALLOWED_ORIGINS: '*'  # Changez pour '*' en développement
+      DEBUG: '1'
+      CORS_ALLOWED_ORIGINS: '*'  # Permet toutes les origines en dev
+      ALLOW_ANONYMOUS: '1'
+      MERCURE_EXTRA_DIRECTIVES: |
+        debug
+        cors_origins *
+        anonymous
+        subscriptions
+        heartbeat 40s
+        demo
+    ports:
+      - '3000:80'
+    depends_on:
+      - db
+    networks:
+      - app_network
 
   phpmyadmin:
     container_name: phpmyfpeos
@@ -56,7 +96,8 @@ services:
       - '8899:80'
     depends_on:
       - db
-
+    networks:
+      - app_network
 
   mailhog:
     container_name: mailhogfpeos
@@ -66,38 +107,13 @@ services:
     ports:
       - '1025:1025'
       - '8025:8025'
-
-
-#  mercure:
-#    image: dunglas/mercure
-#    restart: unless-stopped
-#    environment:
-#      MERCURE_PUBLISHER_JWT_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.q4qysZ36LlnWqrk4uqGDw_S0Q9KladX0QysuoKQvvJo'
-#      MERCURE_SUBSCRIBER_JWT_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.jlN3LQ5qR0zyA0UShqwEKAh-N4XYHjP2NwD6HxI35V0'
-#      MERCURE_EXTRA_DIRECTIVES: |
-#        cors_origins http://localhost:8000
-#        anonymous
-#        subscriptions
-#    command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://localhost/healthz" ]
-#      timeout: 5s
-#      retries: 5
-#      start_period: 60s
-#    volumes:
-#      - mercure_data:/data
-#      - mercure_config:/config
-#    ports:
-#      - "9090:80"
-#    networks:
-#      - app_network
-#
-#networks:
-#  app_network:
-#    driver: bridge
+    networks:
+      - app_network
 
 volumes:
   caddy_data:
   caddy_config:
-#  mercure_data:
-#  mercure_config:
+
+networks:
+  app_network:
+    driver: bridge

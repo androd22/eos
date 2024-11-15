@@ -4,24 +4,32 @@
 FROM dunglas/frankenphp:1-php8.3 AS frankenphp_upstream
 
 # The different stages of this Dockerfile are meant to be built into separate images
-# https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
-# https://docs.docker.com/compose/compose-file/#target
-
-# Base FrankenPHP image
 FROM frankenphp_upstream AS frankenphp_base
 
 WORKDIR /app
 
 VOLUME /app/var/
 
-# persistent / runtime deps
-# hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Installation de Node.js et npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get update && apt-get install -y --no-install-recommends \
     acl \
     file \
     gettext \
     git \
+    nodejs \
+    && npm install -g npm@latest \
     && rm -rf /var/lib/apt/lists/*
+
+# Copie des fichiers de configuration
+COPY package*.json ./
+COPY webpack.config.js ./
+
+# Installation des dépendances avec npm
+#RUN npm install
+#
+## Construction des assets
+#RUN npm run dev
 
 RUN set -eux; \
     install-php-extensions \
@@ -35,9 +43,7 @@ RUN set -eux; \
        gd \
     ;
 
-# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
-
 ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
 
 ###> recipes ###

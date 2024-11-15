@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Celebrity{% endblock %}
+
+{% block body %}
+    <h1>Edit Celebrity</h1>
+
+    {{ include('admin/celebrity/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_admin_celebrity_index') }}">back to list</a>
+
+    {{ include('admin/celebrity/_delete_form.html.twig') }}
+{% endblock %}

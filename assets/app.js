@@ -1,4 +1,6 @@
-import './bootstrap.js';
+
+
+
 /*
  * Welcome to your app's main JavaScript file!
  *
@@ -6,6 +8,15 @@ import './bootstrap.js';
  * which should already be in your base.html.twig.
  */
 import './styles/app.css';
+import '@hotwired/turbo';
+import * as Turbo from '@hotwired/turbo';
+
+// Configurer Turbo
+Turbo.setProgressBarDelay(1);
+
+// On peut aussi utiliser start() pour s'assurer que Turbo est initialisé
+Turbo.start();
+import '@hotwired/stimulus';
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
 

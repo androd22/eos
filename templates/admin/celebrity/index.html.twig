@@ -1,0 +1,43 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Celebrity index{% endblock %}
+
+{% block body %}
+    <h1>Celebrity index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>StageName</th>
+                <th>RealFirstName</th>
+                <th>RealLastName</th>
+                <th>Biography</th>
+                <th>Image</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for celebrity in celebrities %}
+            <tr>
+                <td>{{ celebrity.id }}</td>
+                <td>{{ celebrity.stageName }}</td>
+                <td>{{ celebrity.realFirstName }}</td>
+                <td>{{ celebrity.realLastName }}</td>
+                <td>{{ celebrity.biography }}</td>
+                <td>{{ celebrity.image }}</td>
+                <td>
+                    <a href="{{ path('admin_celebrity_show', {'id': celebrity.id}) }}">show</a>
+                    <a href="{{ path('admin_celebrity_edit', {'id': celebrity.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_celebrity_new') }}">Create new</a>
+{% endblock %}

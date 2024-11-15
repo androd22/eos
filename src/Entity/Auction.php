@@ -11,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AuctionRepository::class)]
 class Auction
 {
+    public const STATUS_UPCOMING = 'upcoming';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_FINISHED = 'finished';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -29,7 +33,7 @@ class Auction
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $started_at = null;
+    private ?\DateTimeImmutable $startedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $finishedAt = null;
@@ -69,7 +73,6 @@ class Auction
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -81,7 +84,6 @@ class Auction
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -93,7 +95,6 @@ class Auction
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
         return $this;
     }
 
@@ -105,19 +106,17 @@ class Auction
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
     public function getStartedAt(): ?\DateTimeImmutable
     {
-        return $this->started_at;
+        return $this->startedAt;
     }
 
-    public function setStartedAt(\DateTimeImmutable $started_at): static
+    public function setStartedAt(\DateTimeImmutable $startedAt): static
     {
-        $this->started_at = $started_at;
-
+        $this->startedAt = $startedAt;
         return $this;
     }
 
@@ -129,7 +128,6 @@ class Auction
     public function setFinishedAt(\DateTimeInterface $finishedAt): static
     {
         $this->finishedAt = $finishedAt;
-
         return $this;
     }
 
@@ -141,7 +139,6 @@ class Auction
     public function setImage(string $image): static
     {
         $this->image = $image;
-
         return $this;
     }
 
@@ -153,10 +150,8 @@ class Auction
     public function setCreatedBy(?User $createdBy): static
     {
         $this->createdBy = $createdBy;
-
         return $this;
     }
-    
 
     /**
      * @return Collection<int, Product>
@@ -172,19 +167,16 @@ class Auction
             $this->products->add($product);
             $product->setAuction($this);
         }
-
         return $this;
     }
 
     public function removeProduct(Product $product): static
     {
         if ($this->products->removeElement($product)) {
-            // set the owning side to null (unless already changed)
             if ($product->getAuction() === $this) {
                 $product->setAuction(null);
             }
         }
-
         return $this;
     }
 
@@ -196,7 +188,46 @@ class Auction
     public function setCelebrity(?Celebrity $celebrity): static
     {
         $this->celebrity = $celebrity;
-
         return $this;
+    }
+
+    /**
+     * Met à jour le statut en fonction des dates
+     */
+    public function updateStatus(): void
+    {
+        $now = new \DateTime();
+
+        if ($now < $this->getStartedAt()) {
+            $this->status = self::STATUS_UPCOMING;
+        } else if ($now > $this->getFinishedAt()) {
+            $this->status = self::STATUS_FINISHED;
+        } else {
+            $this->status = self::STATUS_ACTIVE;
+        }
+    }
+
+    /**
+     * Vérifie si l'enchère est terminée
+     */
+    public function isFinished(): bool
+    {
+        return $this->status === self::STATUS_FINISHED;
+    }
+
+    /**
+     * Vérifie si l'enchère est active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * Vérifie si l'enchère n'a pas encore commencé
+     */
+    public function isUpcoming(): bool
+    {
+        return $this->status === self::STATUS_UPCOMING;
     }
 }
