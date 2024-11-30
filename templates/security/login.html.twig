@@ -41,7 +41,9 @@
                 <label for="_remember_me">Remember me</label>
             </div>
             #}
-
+            {% if redirect is defined and redirect is not null %}
+                <input type="hidden" name="_target_path" value="{{ redirect }}">
+            {% endif %}
             <button class="btn btn-lg btn-primary w-1/2 mx-auto block py-2 rounded-md" type="submit">
                 Connecte-toi !
             </button>

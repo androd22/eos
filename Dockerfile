@@ -7,8 +7,14 @@ FROM dunglas/frankenphp:1-php8.3 AS frankenphp_upstream
 FROM frankenphp_upstream AS frankenphp_base
 
 WORKDIR /app
+ENV TZ=Europe/Paris
+RUN date
 
 VOLUME /app/var/
+
+RUN echo "upload_max_filesize = 64M" >> /usr/local/etc/php/conf.d/upload.ini \
+    && echo "post_max_size = 64M" >> /usr/local/etc/php/conf.d/upload.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/upload.ini
 
 # Installation de Node.js et npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -45,6 +51,7 @@ RUN set -eux; \
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
+
 
 ###> recipes ###
 ###< recipes ###

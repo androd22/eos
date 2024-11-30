@@ -3,6 +3,10 @@
 {% block title %}3eos - Enchères caritatives{% endblock %}
 
 {% block body %}
+    <div id="auction-config"
+         data-mercure-url="{{ mercureUrl }}"
+         style="display: none;">
+    </div>
     <!-- Hero Section -->
     <section class="lg:min-h-[50vh] pt-32 royal-gradient">
         <div class="container mx-auto px-4">
@@ -91,6 +95,9 @@
                             </svg>
                         </div>
                     </div>
+                    {% if redirect is defined and redirect is not null %}
+                        <input type="hidden" name="_target_path" value="{{ redirect }}">
+                    {% endif %}
                 </form>
             </div>
         </div>
@@ -101,17 +108,14 @@
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {% for auction in auctions %}
-                    <div class="white-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300">
+                    <div class="white-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300" data-auction-id="{{ auction.id }}">
                         <div class="relative">
                             <img src="{{ auction.image }}" alt="{{ auction.name }}" class="w-full h-64 object-cover">
                             <div class="absolute top-4 right-4">
-    <span style="background: linear-gradient(135deg, #1D365B 0%, #234B6E 100%)"
-          class="text-white text-sm font-medium
-                 px-4 py-1.5 rounded-full
-                 shadow-lg
-                 border border-white/20">
-        {{ auction.status }}
-    </span>
+                                <span style="background: linear-gradient(135deg, #1D365B 0%, #234B6E 100%)"
+                                      class="text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg border border-white/20">
+                                    {{ auction.status }}
+                                </span>
                             </div>
                             <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1D365B] to-transparent">
                                 <div class="flex items-center">
@@ -130,11 +134,11 @@
                             <div class="flex justify-between items-center mb-6">
                                 <div>
                                     <p class="text-sm text-[#234B6E]">Enchère actuelle</p>
-                                    <p class="text-2xl font-bold golden-text">
-                                        {% set highestBid = auction.products[0].bids|length > 0
-                                            ? auction.products[0].bids|last.amount
-                                            : auction.products[0].initialPrice %}
-                                        {{ highestBid|number_format(2, ',', ' ') }} €
+                                    <p class="text-2xl font-bold golden-text" data-auction-total="{{ auction.id }}" data-bid-amount="{{ auction.id }}">
+                                        {% set totalAmount = auction.products|reduce((total, product) =>
+                                            total + (product.bids|length > 0 ? product.bids|last.amount : product.initialPrice), 0)
+                                        %}
+                                        {{ totalAmount|number_format(2, ',', ' ') }} €
                                     </p>
                                 </div>
                                 <div class="text-right">
@@ -145,9 +149,11 @@
                                     </p>
                                 </div>
                             </div>
-                            <a href="{{ path('app_auction_show', {id: auction.id}) }}"
+                            <a href="{{ is_granted('ROLE_USER')
+                            ? path('app_auction_show', {'id': auction.id})
+                            : path('app_login', {'redirect': path('app_auction_show', {'id': auction.id})}) }}"
                                class="block w-full btn-primary text-center py-4 rounded-xl font-medium">
-                                Participer à l'enchère
+                                {{ is_granted('ROLE_USER') ? 'Participer à l\'enchère' : 'Se connecter pour enchérir' }}
                             </a>
                         </div>
                     </div>
@@ -167,8 +173,51 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mise à jour des comptes à rebours
+
+        function updateAuctionDisplay(auctionId, data) {
+            const bidElement = document.querySelector(`[data-bid-amount="${auctionId}"]`);
+            if (bidElement && data.auctionTotal) {
+                const amount = parseFloat(data.auctionTotal);
+                bidElement.textContent = `${amount.toLocaleString('fr-FR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })} €`;
+            }
+        }
+
+        function initializeMercure() {
+            const mercureUrl = "{{ mercureUrl }}";
+            if (!mercureUrl) return;
+
+            const auctionElements = document.querySelectorAll('[data-auction-id]');
+            auctionElements.forEach(element => {
+                const auctionId = element.dataset.auctionId;
+                const url = new URL(mercureUrl);
+                url.searchParams.append('topic', `auction/${auctionId}`);
+
+                console.log('Abonnement à:', url.toString());
+
+                const eventSource = new EventSource(url.toString(), {
+                    withCredentials: false
+                });
+
+                eventSource.addEventListener('message', (e) => {
+                    console.log('Message reçu:', e.data);
+                    try {
+                        const data = JSON.parse(e.data);
+                        updateAuctionDisplay(auctionId, data); // Appel de la fonction ici
+                    } catch (error) {
+                        console.error('Erreur parsing:', error);
+                    }
+                });
+
+                eventSource.onerror = (error) => {
+                    console.error('Erreur EventSource:', error);
+                };
+            });
+        }
+
+        function initializeCountdowns() {
             const countdowns = document.querySelectorAll('[data-countdown]');
 
             function updateCountdowns() {
@@ -192,6 +241,18 @@
 
             updateCountdowns();
             setInterval(updateCountdowns, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initialisation...');
+            initializeCountdowns();
+            initializeMercure();
+            document.querySelectorAll('a.btn-primary').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = this.href;
+                });
+            });
         });
     </script>
 {% endblock %}

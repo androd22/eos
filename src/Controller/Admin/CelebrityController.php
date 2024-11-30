@@ -4,8 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\Auction;
 use App\Entity\Celebrity;
-use App\Entity\Product;
-use App\Entity\Profession;
 use App\Form\CelebrityAuctionType;
 use App\Form\CelebrityType;
 use App\Repository\CelebrityRepository;
@@ -16,11 +14,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/celebrity')]
-final class CelebrityController extends AbstractController
+#[IsGranted('ROLE_ADMIN')]
+class CelebrityController extends AbstractController
 {
-    #[Route(name: 'admin_celebrity_index', methods: ['GET'])]
+    #[Route(name: 'admin_celebrity', methods: ['GET'])]
     public function index(CelebrityRepository $celebrityRepository): Response
     {
         return $this->render('admin/celebrity/index.html.twig', [
@@ -31,21 +31,8 @@ final class CelebrityController extends AbstractController
     #[Route('/new', name: 'admin_celebrity_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ProfessionRepository $professionRepository, UserRepository $userRepository): Response
     {
-//        $celebrity = new Celebrity();
-//        $form = $this->createForm(CelebrityType::class, $celebrity);
-//        $form->handleRequest($request);
-//
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            $entityManager->persist($celebrity);
-//            $entityManager->flush();
-//
-//            return $this->redirectToRoute('app_admin_celebrity_index', [], Response::HTTP_SEE_OTHER);
-//        }
-
         $celebrity = new Celebrity();
         $auction = new Auction();
-        $product = new Product();
-
         /****TEMPORAIRE****/
         $profession = $professionRepository->find(1); // ID du chanteur
         if ($profession) {
@@ -53,30 +40,28 @@ final class CelebrityController extends AbstractController
         }
         $auction->setStatus("test");
         $auction->setCreatedBy($this->getUser());
-        $product->setBatchNumber(213);
-
+//        $product->setBatchNumber(213);
         /*******************************/
         $auction->setCelebrity($celebrity);
-        $product->setAuction($auction);;
-
-
+//        $product->setAuction($auction);;
         $form = $this->createForm(CelebrityAuctionType::class, [
             'celebrity' => $celebrity,
             'auction' => $auction,
-            'product' => $product,
+//            'product' => $product,
+        ] , [
+            'auction_options' => ['is_celebrity_registration' => true]
         ]);
 
-        $form->handleRequest($request);
 
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             // Persist the entities
             $entityManager->persist($data['celebrity']);
             $entityManager->persist($data['auction']);
-            $entityManager->persist($data['product']);
+//            $entityManager->persist($data['product']);
             $entityManager->flush();
-
-            $this->addFlash('success', 'La célébrité, l\'enchère et le produit ont été créés avec succès.');
+            $this->addFlash('success', 'La célébrité et  l\'enchère ont été créés avec succès.');
             return $this->redirectToRoute('app_dashboard');
         }
         return $this->render('admin/celebrity/new.html.twig', [
@@ -97,13 +82,10 @@ final class CelebrityController extends AbstractController
     {
         $form = $this->createForm(CelebrityType::class, $celebrity);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
-            return $this->redirectToRoute('admin_celebrity_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('admin_celebrity', [], Response::HTTP_SEE_OTHER);
         }
-
         return $this->render('admin/celebrity/edit.html.twig', [
             'celebrity' => $celebrity,
             'form' => $form,
@@ -117,7 +99,6 @@ final class CelebrityController extends AbstractController
             $entityManager->remove($celebrity);
             $entityManager->flush();
         }
-
-        return $this->redirectToRoute('admin_celebrity_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('admin_celebrity', [], Response::HTTP_SEE_OTHER);
     }
 }

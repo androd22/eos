@@ -10,100 +10,136 @@
          data-mercure-url="{{ mercureUrl }}"
          data-auction-id="{{ auction.id }}"
          data-minimum-increment="{{ minimumIncrement }}"
-         data-minimum-next-bid="{{ minimumNextBid }}"
          data-user-id="{{ userId }}"
+         data-start-time="{{ auction.startedAt|date('Y-m-d H:i:s') }}"
+         data-end-time="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"
          style="display: none;">
     </div>
+    <div class="pt-44">
+        <div class="container mx-auto px-4 py-8 ">
+            <div class="max-w-4xl mx-auto">
+                <!-- En-tête de l'enchère -->
+{#                <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">#}
+{#                    <!-- Section Image et Infos Célébrité -->#}
+{#                    <div class="relative">#}
+{#                        #}{#                    <img src="{{ auction.image }}" alt="{{ auction.name }}" class="w-full h-64 object-cover">#}
+{#                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#1D365B] to-transparent">#}
+{#                            <div class="flex items-center">#}
+{#                                #}{#                            <img src="{{ auction.celebrity.image }}" alt="{{ auction.celebrity.stageName }}"#}
+{#                                class="w-16 h-16 rounded-full border-2 border-[#D4B054]">#}
+{#                                <div class="ml-4">#}
+{#                                    <h1 class="text-2xl text-white font-bold">{{ auction.celebrity.stageName }}</h1>#}
+{#                                    <p class="golden-text">{{ auction.celebrity.profession.name }}</p>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-4xl mx-auto">
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <!-- Section Image et Infos Célébrité -->
-                <div class="relative">
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#1D365B] to-transparent">
-                        <div class="flex items-center">
-                            <div class="ml-4">
-                                <h1 class="text-2xl text-white font-bold">{{ auction.celebrity.stageName }}</h1>
-                                <p class="golden-text">{{ auction.celebrity.profession.name }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+{#                    <!-- Informations de l'enchère -->#}
+{#                    <div class="p-6">#}
+{#                        <h2 class="text-3xl font-bold text-[#1D365B] mb-4">{{ auction.name }}</h2>#}
+{#                        <p class="text-[#234B6E] mb-8">{{ auction.description }}</p>#}
 
-                <!-- Informations de l'enchère -->
-                <div class="p-6">
-                    <h2 class="text-3xl font-bold text-[#1D365B] mb-4">{{ auction.name }}</h2>
-                    <p class="text-[#234B6E] mb-8">{{ auction.description }}</p>
+{#                        <!-- État actuel de l'enchère -->#}
+{#                        <div class="bg-gray-50 rounded-xl p-6 mb-8">#}
+{#                            <div class="grid grid-cols-2 gap-8">#}
+{#                                <div>#}
+{#                                    <p class="text-sm text-[#234B6E]">Total de l'enchère</p>#}
+{#                                    <p class="text-3xl font-bold golden-text" id="auction-total">#}
+{#                                        {{ productsWithBids|reduce((total, item) => total + item.highestBid, 0)|number_format(2, ',', ' ') }} €#}
+{#                                    </p>#}
+{#                                </div>#}
+{#                                <div>#}
+{#                                    <p class="text-sm text-[#234B6E]">Temps restant</p>#}
+{#                                    <p class="text-3xl font-bold text-[#1D365B]"#}
+{#                                       data-countdown="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"#}
+{#                                       id="countdown">#}
+{#                                        --:--:--#}
+{#                                    </p>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
 
-                    <!-- État actuel de l'enchère -->
-                    <div class="bg-gray-50 rounded-xl p-6 mb-8">
-                        <div class="grid grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-sm text-[#234B6E]">Enchère actuelle</p>
-                                <p class="text-3xl font-bold golden-text" id="current-bid">
-                                    {{ highestBid|number_format(2, ',', ' ') }} €
-                                </p>
-                                <p class="text-sm text-[#234B6E] mt-2" id="last-bidder">
-                                    {% if auction.products[0].bids is not empty %}
-                                        Dernière enchère par {{ auction.products[0].bids|last.bidder.email }}
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-[#234B6E]">Temps restant</p>
-                                <p class="text-3xl font-bold text-[#1D365B]"
-                                   data-countdown="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"
-                                   id="countdown">
-                                    --:--:--
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Liste des produits -->
+                <div class="space-y-8">
+                    {% for productData in productsWithBids %}
+                        {% set product = productData.product %}
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden" data-product-id="{{ product.id }}">
+                            <div class="p-6">
+                                <h3 class="text-2xl font-bold text-[#1D365B] mb-4">{{ product.name }}</h3>
+                                <p class="text-[#234B6E] mb-6">{{ product.description }}</p>
 
-                    <!-- Formulaire d'enchère -->
-                    {% if is_granted('ROLE_USER') and auction.status == 'active' %}
-                        <div class="mt-8">
-                            <form id="auction-form" class="space-y-6">
-                                <div class="space-y-2">
-                                    <label for="bid-amount" class="block text-sm font-medium text-[#234B6E]">
-                                        Votre enchère (minimum {{ minimumNextBid|number_format(2, ',', ' ') }} €)
-                                    </label>
-                                    <div class="relative">
-                                        <input type="number"
-                                               id="bid-amount"
-                                               name="amount"
-                                               step="{{ minimumIncrement }}"
-                                               min="{{ minimumNextBid }}"
-                                               value="{{ minimumNextBid }}"
-                                               class="w-full pl-4 pr-12 py-3 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">
-                                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#234B6E]">€</span>
+                                <!-- État de l'enchère du produit -->
+                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p class="text-sm text-[#234B6E]">Enchère actuelle</p>
+                                            <p class="text-2xl font-bold golden-text" id="current-bid-{{ product.id }}">
+                                                {{ productData.highestBid|number_format(2, ',', ' ') }} €
+                                            </p>
+                                            <p class="text-sm text-[#234B6E] mt-2" id="last-bidder-{{ product.id }}">
+                                                {% set lastBid = product.bids|last %}
+                                                {% if lastBid %}
+                                                    Dernière enchère par {{ lastBid.bidder.email }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-[#234B6E]">Prix initial</p>
+                                            <p class="text-xl font-bold text-[#1D365B]">
+                                                {{ product.initialPrice|number_format(2, ',', ' ') }} €
+                                            </p>
+                                        </div>
                                     </div>
-                                    <p class="text-sm text-[#234B6E]">
-                                        Incrément minimum de {{ minimumIncrement }}€
-                                    </p>
                                 </div>
-                                <button type="submit"
-                                        class="btn-primary w-full bg-[#1D365B] text-white py-4 rounded-xl hover:bg-[#234B6E] transition-colors flex items-center justify-center">
-                                    <span class="text-center font-semibold">Placer mon enchère</span>
-                                </button>
-                            </form>
+
+                                <!-- Formulaire d'enchère -->
+                                {% if is_granted('ROLE_USER') and auction.status == 'active' %}
+                                    <form class="product-bid-form space-y-4" data-product-id="{{ product.id }}">
+                                        <div class="space-y-2">
+                                            <label for="bid-amount-{{ product.id }}" class="block text-sm font-medium text-[#234B6E]">
+                                                Votre enchère (minimum {{ productData.minimumNextBid|number_format(2, ',', ' ') }} €)
+                                            </label>
+                                            <div class="relative">
+                                                <input type="number"
+                                                       id="bid-amount-{{ product.id }}"
+                                                       name="amount"
+                                                       step="{{ minimumIncrement }}"
+                                                       min="{{ productData.minimumNextBid }}"
+                                                       value="{{ productData.minimumNextBid }}"
+                                                       class="w-full pl-4 pr-12 py-3 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">
+                                                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#234B6E]">€</span>
+                                            </div>
+                                            <p class="text-sm text-[#234B6E]">
+                                                Incrément minimum de {{ minimumIncrement }}€
+                                            </p>
+                                        </div>
+                                        <button type="submit"
+                                                class="btn-primary w-full bg-[#1D365B] text-white py-4 rounded-xl hover:bg-[#234B6E] transition-colors">
+                                            <span class="text-center font-semibold">Enchérir sur ce lot</span>
+                                        </button>
+                                    </form>
+                                {% elseif not is_granted('ROLE_USER') %}
+                                    <div class="text-center p-6 bg-gray-50 rounded-xl">
+                                        <p class="text-[#234B6E]">Connectez-vous pour participer à l'enchère</p>
+                                        <a href="{{ path('app_login') }}" class="bg-[#1D365B] text-white px-6 py-2 rounded-xl inline-block mt-4 hover:bg-[#234B6E] transition-colors">
+                                            Se connecter
+                                        </a>
+                                    </div>
+                                {% elseif auction.status == 'finished' %}
+                                    <div class="text-center p-6 bg-gray-50 rounded-xl">
+                                        <p class="text-[#234B6E]">Cette enchère est terminée depuis le {{ auction.finishedAt|date('d/m/Y à H:i') }}</p>
+                                    </div>
+                                {% elseif auction.status == 'upcoming' %}
+                                    <div class="text-center p-6 bg-gray-50 rounded-xl">
+                                        <p class="text-[#234B6E]">Cette enchère débutera le {{ auction.startedAt|date('d/m/Y à H:i') }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% elseif not is_granted('ROLE_USER') %}
-                        <div class="text-center p-6 bg-gray-50 rounded-xl">
-                            <p class="text-[#234B6E]">Connectez-vous pour participer à l'enchère</p>
-                            <a href="{{ path('app_login') }}" class="bg-[#1D365B] text-white px-6 py-2 rounded-xl inline-block mt-4 hover:bg-[#234B6E] transition-colors">
-                                Se connecter
-                            </a>
-                        </div>
-                    {% elseif auction.status == 'finished' %}
-                        <div class="text-center p-6 bg-gray-50 rounded-xl">
-                            <p class="text-[#234B6E]">Cette enchère est terminée depuis le {{ auction.finishedAt|date('d/m/Y à H:i') }}</p>
-                        </div>
-                    {% elseif auction.status == 'upcoming' %}
-                        <div class="text-center p-6 bg-gray-50 rounded-xl">
-                            <p class="text-[#234B6E]">Cette enchère débutera le {{ auction.startedAt|date('d/m/Y à H:i') }}</p>
-                        </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -127,19 +163,8 @@
             const mercureUrl = config.dataset.mercureUrl;
             const userId = config.dataset.userId;
             const subscriptionToken = config.dataset.subscriptionToken;
-
-            console.log('Configuration chargée:', {
-                auctionId,
-                minimumIncrement,
-                mercureUrl
-            });
-
-            // Elements du DOM
-            const currentBidElement = document.getElementById('current-bid');
-            const lastBidderElement = document.getElementById('last-bidder');
-            const bidInput = document.getElementById('bid-amount');
-            const auctionForm = document.getElementById('auction-form');
-            const countdownElement = document.getElementById('countdown');
+            const startTime = new Date(config.dataset.startTime).getTime();
+            const endTime = new Date(config.dataset.endTime).getTime();
 
             // Formateur de monnaie
             const currencyFormatter = new Intl.NumberFormat('fr-FR', {
@@ -149,35 +174,122 @@
                 maximumFractionDigits: 2
             });
 
-            // Fonction pour obtenir un nouveau token JWT
-            async function getNewJwtToken() {
-                try {
-                    const response = await fetch('/api/token');
-                    const data = await response.json();
+            // Fonction de mise à jour de l'interface utilisateur
+            function updateAuctionUI(status) {
+                const productForms = document.querySelectorAll('.product-bid-form');
+                if (!productForms) return;
 
-                    if (data && data.token) {
-                        console.log('Nouveau token JWT récupéré:', data.token);
-                        return data.token;
-                    } else {
-                        console.error('Token JWT non trouvé dans la réponse:', data);
-                        return null;
+                productForms.forEach(form => {
+                    const productId = form.dataset.productId;
+                    const container = form.closest('[data-product-id]');
+
+                    switch (status) {
+                        case 'upcoming':
+                            container.innerHTML = `
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <p class="text-[#234B6E]">Cette enchère débutera le ${new Date(startTime).toLocaleString('fr-FR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</p>
+                        </div>
+                    `;
+                            break;
+
+                        case 'active':
+                            // Le formulaire existe déjà, pas besoin de le recréer
+                            if (!document.getElementById(`bid-amount-${productId}`)) {
+                                initializeProductBidForms();
+                            }
+                            break;
+
+                        case 'finished':
+                            container.innerHTML = `
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <p class="text-[#234B6E]">Cette enchère est terminée depuis le ${new Date(endTime).toLocaleString('fr-FR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</p>
+                        </div>
+                    `;
+                            break;
                     }
-                } catch (error) {
-                    console.error('Erreur lors de la récupération du nouveau token JWT:', error);
-                    return null;
+                });
+            }
+
+            // Initialisation des formulaires d'enchères
+            function initializeProductBidForms() {
+                document.querySelectorAll('.product-bid-form').forEach(form => {
+                    const productId = form.dataset.productId;
+
+                    form.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const submitButton = this.querySelector('button[type="submit"]');
+                        submitButton.disabled = true;
+
+                        try {
+                            const bidInput = this.querySelector(`#bid-amount-${productId}`);
+                            const amount = parseFloat(bidInput.value);
+                            const currentBidElement = document.querySelector(`#current-bid-${productId}`);
+                            const currentBid = parseFloat(currentBidElement.textContent.replace(/[^0-9.,]/g, '').replace(',', '.'));
+                            const minRequired = currentBid + minimumIncrement;
+
+                            if (amount <= currentBid) {
+                                throw new Error(`Votre enchère doit être supérieure à ${currencyFormatter.format(currentBid)}`);
+                            }
+
+                            if (amount < minRequired) {
+                                throw new Error(`Le montant minimum est de ${currencyFormatter.format(minRequired)}`);
+                            }
+
+                            const result = await placeBid(productId, amount);
+                            if (result.success) {
+                                updateProductDisplay(result.data);
+                                updateAuctionTotal(result.data);
+                            }
+
+                        } catch (error) {
+                            alert(error.message);
+                        } finally {
+                            submitButton.disabled = false;
+                        }
+                    });
+                });
+            }
+
+            // Fonction de mise à jour du total de l'enchère
+            function updateAuctionTotal(data) {
+                const totalElement = document.getElementById('auction-total');
+                if (totalElement && data.auctionTotal) {
+                    totalElement.textContent = currencyFormatter.format(parseFloat(data.auctionTotal));
                 }
             }
 
             // Fonction d'initialisation de Mercure
             function initializeMercure() {
                 const url = new URL(mercureUrl);
-                const topic = 'auction/' + auctionId;  // Format identique
-                url.searchParams.append('topic', topic);
+                const topics = new Set(); // Utiliser un Set pour éviter les doublons
 
-                console.log('Configuration Mercure:', {
-                    url: url.toString(),
-                    topic: topic
+                // S'abonner aux topics des produits
+                document.querySelectorAll('[data-product-id]').forEach(element => {
+                    const productId = element.dataset.productId;
+                    topics.add(`product/${productId}`);
                 });
+
+                // S'abonner au topic de l'enchère
+                topics.add(`auction/${auctionId}`);
+
+                // Ajouter les topics uniques à l'URL
+                topics.forEach(topic => url.searchParams.append('topic', topic));
+
+                console.log('Souscription aux topics:', Array.from(topics));
 
                 if (window.eventSource) {
                     window.eventSource.close();
@@ -187,75 +299,59 @@
                     withCredentials: false
                 });
 
+                window.eventSource.onopen = () => {
+                    console.log('Connexion Mercure établie');
+                };
+
                 window.eventSource.addEventListener('message', (e) => {
-                    console.log('Message reçu sur le topic:', topic);
-                    console.log('Message contenu:', e.data);
+                    console.log('Message Mercure reçu:', e.data);
                     try {
                         const data = JSON.parse(e.data);
-                        updateAuctionDisplay(data);
+                        updateProductDisplay(data);
+                        if (data.auctionTotal) {
+                            updateAuctionTotal(data);
+                        }
                     } catch (error) {
                         console.error('Erreur parsing:', error);
                     }
                 });
             }
 
-// Nettoyage à la fermeture
-            window.addEventListener('beforeunload', () => {
-                if (window.eventSource) {
-                    window.eventSource.close();
-                }
-            });
+            // Fonction de mise à jour de l'affichage d'un produit
+            function updateProductDisplay(data) {
+                if (!data.productId) return;
 
-// Initialisation au chargement
-            document.addEventListener('DOMContentLoaded', () => {
-                console.log('Initialisation Mercure...');
-                initializeMercure();
-            });
+                const currentBidElement = document.querySelector(`#current-bid-${data.productId}`);
+                const lastBidderElement = document.querySelector(`#last-bidder-${data.productId}`);
+                const bidForm = document.querySelector(`.product-bid-form[data-product-id="${data.productId}"]`);
 
-// S'assurer que la connexion est fermée quand on quitte la page
-            window.addEventListener('beforeunload', () => {
-                if (window.eventSource) {
-                    window.eventSource.close();
-                }
-            });
+                if (currentBidElement && data.amount) {
+                    const amount = parseFloat(data.amount);
+                    currentBidElement.textContent = currencyFormatter.format(amount);
 
-// Initialiser la connexion au chargement
-            document.addEventListener('DOMContentLoaded', () => {
-                initializeMercure();
-            });
+                    if (bidForm) {
+                        const bidInput = bidForm.querySelector(`#bid-amount-${data.productId}`);
+                        const newMinBid = amount + minimumIncrement;
 
+                        bidInput.min = newMinBid;
+                        bidInput.value = newMinBid;
 
-            // Mise à jour de l'affichage
-            function updateAuctionDisplay(data) {
-                console.log('updateAuctionDisplay appelé avec:', data);
-
-                const bidData = data.data || data;
-                console.log('Données à utiliser:', bidData);
-
-                if (currentBidElement && bidData.highestBid) {
-                    currentBidElement.textContent = currencyFormatter.format(parseFloat(bidData.highestBid));
-                }
-
-                if (lastBidderElement && bidData.bidder) {
-                    lastBidderElement.textContent = `Dernière enchère par ${bidData.bidder}`;
-                }
-
-                if (bidInput && bidData.minimumBid) {
-                    const minBid = parseFloat(bidData.minimumBid);
-                    bidInput.min = minBid;
-                    bidInput.value = minBid;
-
-                    const label = bidInput.parentElement.previousElementSibling;
-                    if (label) {
-                        label.textContent = `Votre enchère (minimum ${currencyFormatter.format(minBid)})`;
+                        const label = bidForm.querySelector(`label[for="bid-amount-${data.productId}"]`);
+                        if (label) {
+                            label.textContent = `Votre enchère (minimum ${currencyFormatter.format(newMinBid)})`;
+                        }
                     }
+                }
+
+                if (lastBidderElement && data.bidder) {
+                    lastBidderElement.textContent = `Dernière enchère par ${data.bidder}`;
                 }
             }
 
             // Envoi d'une enchère
-            async function placeBid(amount) {
+            async function placeBid(productId, amount) {
                 try {
-                    const response = await fetch(`/api/auction/${auctionId}/bid`, {
+                    const response = await fetch(`/api/product/${productId}/bid`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -269,10 +365,6 @@
                         throw new Error(result.error || 'Une erreur est survenue');
                     }
 
-                    if (result.data) {
-                        updateAuctionDisplay(result);
-                    }
-
                     return result;
                 } catch (error) {
                     console.error('Erreur lors de l\'enchère:', error);
@@ -280,34 +372,73 @@
                 }
             }
 
+            // Mise à jour du statut de l'enchère
+            async function updateAuctionStatus() {
+                try {
+                    const response = await fetch(`/api/auction/${auctionId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            currentTime: new Date().toISOString()
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la mise à jour du statut');
+                    }
+
+                    const result = await response.json();
+                    updateAuctionUI(result.newStatus);
+
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
+
             // Gestion du compte à rebours
             function initializeCountdown() {
+                const countdownElement = document.getElementById('countdown');
                 if (!countdownElement) return;
 
                 function updateCountdown() {
-                    const endTime = new Date(countdownElement.dataset.countdown).getTime();
                     const now = new Date().getTime();
-                    const distance = endTime - now;
 
-                    if (distance < 0) {
-                        countdownElement.textContent = 'Terminée';
-                        if (auctionForm) {
-                            const message = document.createElement('div');
-                            message.className = 'text-center p-6 bg-gray-50 rounded-xl';
-                            message.innerHTML = '<p class="text-[#234B6E]">Cette enchère est terminée</p>';
-                            auctionForm.replaceWith(message);
+                    if (now < startTime) {
+                        const distance = startTime - now;
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        countdownElement.textContent = days > 0 ?
+                            `Débute dans ${days}j ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}` :
+                            `Débute dans ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                        if (now + 1000 >= startTime) {
+                            updateAuctionStatus();
                         }
-                        return false;
+                        return true;
                     }
 
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    if (now < endTime) {
+                        const distance = endTime - now;
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                    countdownElement.textContent =
-                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        countdownElement.textContent = days > 0 ?
+                            `${days}j ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}` :
+                            `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        return true;
+                    }
 
-                    return true;
+                    countdownElement.textContent = 'Terminée';
+                    updateAuctionStatus();
+                    return false;
                 }
 
                 if (updateCountdown()) {
@@ -315,31 +446,29 @@
                 }
             }
 
-            // Initialisation du formulaire
-            if (auctionForm) {
-                auctionForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const submitButton = e.target.querySelector('button[type="submit"]');
-                    submitButton.disabled = true;
-
-                    try {
-                        const amount = parseFloat(bidInput.value);
-                        const result = await placeBid(amount);
-                        console.log('Enchère réussie:', result);
-                    } catch (error) {
-                        alert(error.message);
-                    } finally {
-                        submitButton.disabled = false;
-                    }
-                });
-            }
+            // Nettoyage à la fermeture
+            window.addEventListener('beforeunload', () => {
+                if (window.eventSource) {
+                    window.eventSource.close();
+                }
+            });
 
             // Initialisation
-            console.log('Démarrage de l\'application...');
-            initializeMercure();
-            initializeCountdown();
+            function initialize() {
+                console.log('Démarrage de l\'application...');
+                initializeMercure();
+                initializeCountdown();
+                initializeProductBidForms();
+                updateAuctionStatus();
+
+                // Vérification périodique du statut
+                setInterval(() => {
+                    updateAuctionStatus();
+                }, 30000);
+            }
+
+            // Lancement de l'initialisation
+            initialize();
         });
-
-
     </script>
 {% endblock %}

@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: BidRepository::class)]
 class Bid
 {
+
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_WINNER = 'winner';
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -20,8 +23,8 @@ class Bid
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(length: 20)]
-    private ?string $status = null;
+    #[ORM\Column(length: 20, options: ["default" => "active"])]
+    private ?string $status = self::STATUS_ACTIVE;
 
     #[ORM\Column(length: 45, nullable: true)]
     private ?string $ipAddress = null;
@@ -69,11 +72,18 @@ class Bid
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(string $status): self
     {
+        if (!in_array($status, [self::STATUS_ACTIVE, self::STATUS_WINNER])) {
+            throw new \InvalidArgumentException('Statut invalide');
+        }
         $this->status = $status;
-
         return $this;
+    }
+
+    public function isWinner(): bool
+    {
+        return $this->status === self::STATUS_WINNER;
     }
 
     public function getIpAddress(): ?string

@@ -5,12 +5,12 @@
 
 {% block body %}
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8">Créer une nouvelle célébrité et son enchère</h1>
+        <h1 class="text-3xl  text-center font-bold mb-8 bg-white py-2 text-[#5E3B89]">Ajouter une célébrité</h1>
 
         {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
         {# Section Célébrité #}
         <div class="bg-white shadow-sm rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-6">Informations de la célébrité</h2>
+            <h2 class="text-xl text-white font-semibold py-2 px-2 mb-6 bg-[#5E3B89] hover:bg-[#4D3173]">Informations de la célébrité</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {{ form_row(form.celebrity.realFirstName) }}
                 {{ form_row(form.celebrity.realLastName) }}
@@ -26,13 +26,13 @@
 
         {# Section Enchère #}
         <div class="bg-white shadow-sm rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-6">Informations de l'enchère</h2>
+            <h2 class="text-xl text-white font-semibold mb-6 px-2 py-2 bg-[#5E3B89] hover:bg-[#4D3173]">Informations de l'enchère</h2>
             <div class="mt-6">
                 {{ form_row(form.auction.name) }}
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {{ form_row(form.auction.startedAt) }}
-                {{ form_row(form.auction.createdAt) }}
+{#                {{ form_row(form.auction.createdAt) }}#}
                 {{ form_row(form.auction.finishedAt) }}
             </div>
             <div class="mt-6">
@@ -45,29 +45,91 @@
 {#                {{ form_row(form.auction.startingPrice) }}#}
 {#            </div>#}
         </div>
-
         {# Section Produit #}
-        <div class="bg-white shadow-sm rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-6">Informations du produit</h2>
-            <div class="space-y-6">
-                {{ form_row(form.product.name) }}
-                {{ form_row(form.product.description) }}
-{#                {{ form_row(form.product.image) }}#}
-            </div>
-            <div class="mt-6">
-                {{ form_row(form.product.register) }}
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {{ form_row(form.product.initialPrice) }}
-                {{ form_row(form.product.finalPrice) }}
-            </div>
-        </div>
+{#        <div class="bg-white shadow-sm rounded-lg p-6">#}
+{#            <h2 class="text-xl font-semibold mb-6">Informations du produit</h2>#}
+{#            <div class="space-y-6">#}
+{#                {{ form_row(form.product.name) }}#}
+{#                {{ form_row(form.product.description) }}#}
+
+{#            </div>#}
+{#            <div id="product-images" class="space-y-3"> #}
+{#                <h3 class="text-lg font-medium">Images du produit</h3>#}
+
+{#                #}{# Conteneur de la collection d'images #}
+{#                <div id="product-images" class="space-y-6 bg-white shadow-sm rounded-lg p-6 mt-6">#}
+{#                    <h3 class="text-lg font-semibold text-gray-900">Images du produit</h3>#}
+
+{#                    #}{# Conteneur de la collection d'images #}
+{#                    <div class="space-y-4" data-prototype="{{ form_widget(form.product.images.vars.prototype)|e('html_attr') }}">#}
+{#                        {% for imageForm in form.product.images %}#}
+{#                            <div class="image-entry bg-gray-50 border border-gray-200 rounded-lg p-4 transition hover:shadow-sm">#}
+{#                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">#}
+{#                                    #}{# Preview de l'image #}
+{#                                    <div class="col-span-1">#}
+{#                                        <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">#}
+{#                                            <div class="preview-container w-full h-full flex items-center justify-center">#}
+{#                                                <img src="#" class="preview-image hidden max-h-full object-contain" alt="Aperçu">#}
+{#                                                <span class="text-gray-400 text-sm">Aucune image sélectionnée</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </div>#}
+
+{#                                    #}{# Champs du formulaire #}
+{#                                    <div class="col-span-2 space-y-4">#}
+{#                                        <div class="space-y-2">#}
+{#                                            {{ form_label(imageForm.src, 'Image', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}#}
+{#                                            {{ form_widget(imageForm.src, {'attr': {#}
+{#                                                'class': 'image-input block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100',#}
+{#                                                'accept': 'image/*'#}
+{#                                            }}) }}#}
+{#                                        </div>#}
+
+{#                                        <div class="space-y-2">#}
+{#                                            {{ form_label(imageForm.alt, 'Texte alternatif', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}#}
+{#                                            {{ form_widget(imageForm.alt, {'attr': {'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm'}}) }}#}
+{#                                        </div>#}
+
+{#                                        <div class="space-y-2">#}
+{#                                            {{ form_label(imageForm.typeImage, 'Type d\'image', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}#}
+{#                                            {{ form_widget(imageForm.typeImage, {'attr': {'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm'}}) }}#}
+{#                                        </div>#}
+
+{#                                        <button type="button" class="remove-image inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">#}
+{#                                            <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">#}
+{#                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />#}
+{#                                            </svg>#}
+{#                                            Supprimer#}
+{#                                        </button>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+
+{#                    #}{# Bouton pour ajouter une nouvelle image #}
+{#                    <button type="button" id="add-image" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">#}
+{#                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">#}
+{#                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />#}
+{#                        </svg>#}
+{#                        Ajouter une image#}
+{#                    </button>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="mt-6">#}
+{#                {{ form_row(form.product.register) }}#}
+{#            </div>#}
+{#            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">#}
+{#                {{ form_row(form.product.initialPrice) }}#}
+{#                {{ form_row(form.product.finalPrice) }}#}
+{#            </div>#}
+{#        </div>#}
 
         <div class="flex justify-end space-x-4">
-            <a href="{{ path('admin_celebrity_index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+            <a href="{{ path('admin_celebrity') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                 Annuler
             </a>
-            <button type="submit" class="px-4 py-2 bg-[#5E3B89] hover:bg-[#4D3173] text-white rounded-md">
+            <button type="submit" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md">
                 Créer
             </button>
         </div>
@@ -85,5 +147,100 @@
                 alert('La date de fin doit être postérieure à la date de début.');
             }
         });
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     const addImageButton = document.querySelector('#add-image');
+        //     const collectionHolder = document.querySelector('[data-prototype]');
+        //
+        //     // Initialise la prévisualisation pour les images existantes
+        //     document.querySelectorAll('.image-input').forEach(setupImagePreview);
+        //
+        //     // Garde une trace de l'index actuel
+        //     let index = collectionHolder.children.length;
+        //
+        //     // Fonction pour configurer la prévisualisation d'image
+        //     function setupImagePreview(input) {
+        //         const previewContainer = input.closest('.image-entry').querySelector('.preview-container');
+        //         const previewImage = previewContainer.querySelector('.preview-image');
+        //         const placeholderText = previewContainer.querySelector('span');
+        //
+        //         input.addEventListener('change', function() {
+        //             const file = this.files[0];
+        //             if (file) {
+        //                 const reader = new FileReader();
+        //                 reader.onload = function(e) {
+        //                     previewImage.src = e.target.result;
+        //                     previewImage.classList.remove('hidden');
+        //                     placeholderText.classList.add('hidden');
+        //                 }
+        //                 reader.readAsDataURL(file);
+        //             } else {
+        //                 previewImage.classList.add('hidden');
+        //                 placeholderText.classList.remove('hidden');
+        //             }
+        //         });
+        //     }
+        //
+        //     // Ajout d'une nouvelle image
+        //     addImageButton.addEventListener('click', () => {
+        //         const prototype = collectionHolder.dataset.prototype;
+        //         const newForm = prototype.replace(/__name__/g, index);
+        //
+        //         const div = document.createElement('div');
+        //         div.classList.add('image-entry', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-lg', 'p-4', 'transition', 'hover:shadow-sm');
+        //
+        //         // Template pour le nouvel élément
+        //         div.innerHTML = `
+        //     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        //         <div class="col-span-1">
+        //             <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+        //                 <div class="preview-container w-full h-full flex items-center justify-center">
+        //                     <img src="#" class="preview-image hidden max-h-full object-contain" alt="Aperçu">
+        //                     <span class="text-gray-400 text-sm">Aucune image sélectionnée</span>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //         <div class="col-span-2 space-y-4">
+        //             ${newForm}
+        //             <button type="button" class="remove-image inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        //                 <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        //                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        //                 </svg>
+        //                 Supprimer
+        //             </button>
+        //         </div>
+        //     </div>
+        // `;
+        //
+        //         // Ajoute les classes Tailwind aux nouveaux champs
+        //         div.querySelectorAll('input[type="file"]').forEach(input => {
+        //             input.classList.add('image-input', 'block', 'w-full', 'text-sm', 'text-gray-500', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-full', 'file:border-0', 'file:text-sm', 'file:font-semibold', 'file:bg-violet-50', 'file:text-violet-700', 'hover:file:bg-violet-100');
+        //             input.setAttribute('accept', 'image/*');
+        //         });
+        //
+        //         div.querySelectorAll('input[type="text"], select').forEach(input => {
+        //             input.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-violet-500', 'focus:ring-violet-500', 'sm:text-sm');
+        //         });
+        //
+        //         div.querySelectorAll('label').forEach(label => {
+        //             label.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700');
+        //         });
+        //
+        //         collectionHolder.appendChild(div);
+        //
+        //         // Configure la prévisualisation pour la nouvelle image
+        //         setupImagePreview(div.querySelector('.image-input'));
+        //
+        //         // Gère l'index pour la prochaine image
+        //         index++;
+        //     });
+        //
+        //     // Suppression d'une image
+        //     collectionHolder.addEventListener('click', (e) => {
+        //         if (e.target.closest('.remove-image')) {
+        //             e.target.closest('.image-entry').remove();
+        //         }
+        //     });
+        // });
+
     </script>
 {% endblock %}

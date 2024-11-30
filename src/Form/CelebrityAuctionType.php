@@ -23,20 +23,23 @@ class CelebrityAuctionType extends AbstractType
             ->add('auction', AuctionType::class, [
                 'label' => false,
                 'data_class' => Auction::class,
+                'is_celebrity_registration' => $options['auction_options']['is_celebrity_registration']
             ])
 
             // Section Produit
-            ->add('product', ProductType::class, [
-                'label' => false,
-                'data_class' => Product::class,
-            ]);
+//            ->add('product', ProductType::class, [
+//                'label' => false,
+//                'data_class' => Product::class,
+//            ]);
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // Configure your form options here
+            'auction_options' => [
+            'is_celebrity_registration' => true
+        ]
         ]);
     }
 }

@@ -22,9 +22,14 @@ class Image
     #[ORM\Column(length: 20)]
     private ?string $typeImage = null;
 
-    #[ORM\ManyToOne(inversedBy: 'images')]
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'images')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
+
+    public function __toString(): string
+    {
+        return $this->src ?? 'New Image';
+    }
 
     public function getId(): ?int
     {

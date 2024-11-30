@@ -6,13 +6,14 @@
 parameters:
     mercure_jwt_secret: '%env(MERCURE_JWT_SECRET)%'
     uploads_directory: '%kernel.project_dir%/public/uploads/'
+    auctions_directory: '%kernel.project_dir%/public/uploads/auctions'
+    products_directory: '%kernel.project_dir%/public/uploads/products'
 
 services:
     # default configuration for services in *this* file
     _defaults:        # Correction: _defaults au lieu de *defaults
         autowire: true
         autoconfigure: true
-
     # Configure AuctionController avec toutes ses dépendances
     App\Controller\AuctionController:
         arguments:
@@ -46,3 +47,6 @@ services:
             - '../src/Kernel.php'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\EmailService:
+        arguments:
+            $contactEmail: '%env(CONTACT_EMAIL)%'

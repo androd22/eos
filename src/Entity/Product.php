@@ -34,7 +34,7 @@ class Product
     #[ORM\Column(type: Types::DECIMAL, precision: 7, scale: 2, nullable: true)]
     private ?string $finalPrice = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $register = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
@@ -50,7 +50,8 @@ class Product
     /**
      * @var Collection<int, Image>
      */
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'product',  cascade: ['persist', 'remove'],
+        orphanRemoval: true)]
     private Collection $images;
 
     public function __construct()
