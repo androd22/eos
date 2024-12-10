@@ -7,6 +7,8 @@ use App\Entity\Product;
 use App\Entity\Bid;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Entity\Celebrity;
+use App\Entity\Profession;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -25,6 +27,28 @@ class AppFixtures extends Fixture
     {
         $faker = Factory::create('fr_FR');
 
+        // Création d'une profession
+        $profession = new Profession();
+        $profession->setName('Artiste');
+        $manager->persist($profession);
+
+        // Création des célébrités
+        $celebrities = [];
+        for ($i = 0; $i < 5; $i++) {
+            $celebrity = new Celebrity();
+            $celebrity
+                ->setStageName($faker->name())
+                ->setRealFirstName($faker->firstName())
+                ->setRealLastName($faker->lastName())
+                ->setBiography($faker->paragraphs(3, true))
+                ->setImage($faker->imageUrl())
+                ->setImageAlt($faker->words(3, true))
+                ->setProfession($profession);
+
+            $manager->persist($celebrity);
+            $celebrities[] = $celebrity;
+        }
+
         // Création des utilisateurs
         $admin = new User();
         $admin->setEmail('androd@eos.com')
@@ -32,7 +56,6 @@ class AppFixtures extends Fixture
             ->setFirstName('Andy')
             ->setLastName('Rod')
             ->setTelephone('0102030405')
-            ->setImage('http://www.davidhechler.com/wp-content/uploads/2016/07/500x500-dummy-image-300x300.jpg')
             ->setIsKycVerified(true)
             ->setVerified(true);
 
@@ -46,7 +69,6 @@ class AppFixtures extends Fixture
             ->setFirstName('First')
             ->setLastName('Test')
             ->setTelephone('0605040302')
-            ->setImage('http://www.davidhechler.com/wp-content/uploads/2016/07/500x500-dummy-image-300x300.jpg')
             ->setIsKycVerified(true)
             ->setVerified(true);
 
@@ -55,6 +77,7 @@ class AppFixtures extends Fixture
         $manager->persist($user);
 
         $users = [$admin, $user];
+
         // Création des enchères (auctions)
         $auctions = [];
         for ($i = 0; $i < 10; $i++) {
@@ -67,10 +90,9 @@ class AppFixtures extends Fixture
                 ->setCreatedBy($faker->randomElement($users))
                 ->setFinishedAt($finishedAt)
                 ->setCreatedAt(new \DateTimeImmutable())
-                ->setImage($faker->imageUrl(640, 480, 'auction'))
                 ->setStatus($faker->randomElement(['draft', 'active', 'closed']))
                 ->setStartedAt($startedAt)
-                ->setCelebrityName($faker->name());
+                ->setCelebrity($faker->randomElement($celebrities));
 
             $manager->persist($auction);
             $auctions[] = $auction;
@@ -110,19 +132,27 @@ class AppFixtures extends Fixture
                 if ($auction->getStatus() === 'active') {
                     $numBids = rand(0, 8);
                     $currentAmount = $initialPrice;
+                    $bids = [];
 
                     for ($k = 0; $k < $numBids; $k++) {
                         $bid = new Bid();
                         $currentAmount += $faker->randomFloat(2, 50, 500);
 
-                        $bid->setAmount($currentAmount)
+                        $bid->setAmount((string)$currentAmount)
                             ->setCreatedAt($faker->dateTimeBetween($auction->getStartedAt()->format('Y-m-d H:i:s'), 'now'))
-                            ->setStatus($faker->randomElement(['pending', 'accepted', 'rejected']))
+                            ->setStatus(Bid::STATUS_ACTIVE)  // Tous les bids en 'active' par défaut
                             ->setIpAddress($faker->ipv6)
                             ->setBidder($faker->randomElement($users))
                             ->setProduct($product);
 
                         $manager->persist($bid);
+                        $bids[] = $bid;
+                    }
+
+                    // Si on a des bids, on définit le dernier comme gagnant
+                    if (!empty($bids)) {
+                        $lastBid = end($bids);
+                        $lastBid->setStatus(Bid::STATUS_WINNER);
                     }
                 }
             }
