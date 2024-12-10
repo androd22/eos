@@ -1,0 +1,56 @@
+{
+    {$CADDY_GLOBAL_OPTIONS}
+    frankenphp {
+       {$FRANKENPHP_CONFIG}
+    }
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+http:// {
+    log {
+        format filter {
+            request>uri query {
+                replace authorization REDACTED
+            }
+        }
+    }
+
+    root * /app/public
+    encode zstd br gzip
+
+    mercure {
+        # Transport to use (default to Bolt)
+        transport_url {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}
+        # Publisher JWT key
+        publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
+        # Subscriber JWT key
+        subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+        # Allow anonymous subscribers
+        anonymous
+        # Enable subscriptions
+        subscriptions
+        # CORS configuration
+        cors_origins *
+        # Allowed publish origins
+        publish_origins http://localhost:8000
+        # Extra directives
+        {$MERCURE_EXTRA_DIRECTIVES}
+    }
+
+    # Ajout des headers CORS
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers *
+        Access-Control-Allow-Credentials true
+    }
+
+    vulcain
+
+    {$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+    header ?Permissions-Policy "browsing-topics=()"
+
+    php_server
+}

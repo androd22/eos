@@ -1,0 +1,85 @@
+{# templates/emails/contact.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #1D365B;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .field {
+            margin-bottom: 15px;
+        }
+        .label {
+            font-weight: bold;
+            color: #D4B054;
+        }
+        .message {
+            white-space: pre-wrap;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Nouveau message de contact</h1>
+        <p>Un nouveau message a été envoyé via le formulaire de contact.</p>
+    </div>
+
+    <div class="content">
+        <div class="field">
+            <span class="label">Nom :</span>
+            <span>{{ contact.name }}</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Email :</span>
+            <span>{{ contact.email }}</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Sujet :</span>
+            <span>{{ contact.subject }}</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Message :</span>
+            <div class="message">{{ contact.message|nl2br }}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Ce message a été envoyé depuis le formulaire de contact de 3EOS.</p>
+        <p>Pour répondre à ce message, vous pouvez directement répondre à cet email.</p>
+    </div>
+</div>
+</body>
+</html>

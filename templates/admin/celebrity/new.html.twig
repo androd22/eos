@@ -1,0 +1,64 @@
+{# templates/admin/celebrity/new.html.twig #}
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouvelle Célébrité et Enchère{% endblock %}
+
+{% block body %}
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl  text-center font-bold mb-8 bg-white py-2 text-[#5E3B89]">Ajouter une célébrité</h1>
+
+        {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+        {# Section Célébrité #}
+        <div class="bg-white shadow-sm rounded-lg p-6">
+            <h2 class="text-xl text-white font-semibold py-2 px-2 mb-6 bg-[#5E3B89] hover:bg-[#4D3173]">Informations de la célébrité</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {{ form_row(form.celebrity.realFirstName) }}
+                {{ form_row(form.celebrity.realLastName) }}
+                {{ form_row(form.celebrity.stageName) }}
+            </div>
+            <div class="mt-6">
+                {{ form_row(form.celebrity.biography) }}
+            </div>
+            <div class="mt-6">
+                {{ form_row(form.celebrity.image) }}
+            </div>
+        </div>
+
+        {# Section Enchère #}
+        <div class="bg-white shadow-sm rounded-lg p-6">
+            <h2 class="text-xl text-white font-semibold mb-6 px-2 py-2 bg-[#5E3B89] hover:bg-[#4D3173]">Informations de l'enchère</h2>
+            <div class="mt-6">
+                {{ form_row(form.auction.name) }}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {{ form_row(form.auction.startedAt) }}
+{#                {{ form_row(form.auction.createdAt) }}#}
+                {{ form_row(form.auction.finishedAt) }}
+            </div>
+            <div class="mt-6">
+                {{ form_row(form.auction.description) }}
+            </div>
+        </div>
+        <div class="flex justify-end space-x-4">
+            <a href="{{ path('admin_celebrity') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                Annuler
+            </a>
+            <button type="submit" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md">
+                Créer
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+    <script>
+        // Validation côté client basique
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const startDate = new Date(document.querySelector('[name$="[startDate]"]').value);
+            const endDate = new Date(document.querySelector('[name$="[endDate]"]').value);
+
+            if (startDate >= endDate) {
+                e.preventDefault();
+                alert('La date de fin doit être postérieure à la date de début.');
+            }
+        });
+    </script>
+{% endblock %}

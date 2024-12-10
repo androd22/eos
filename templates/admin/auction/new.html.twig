@@ -1,0 +1,155 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gestion de l'enchère{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header avec style coordonné -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#3A2060] mb-2">Ajouter une enchère</h1>
+                    <p class="text-gray-600">Créez une nouvelle enchère en remplissant les informations ci-dessous</p>
+                </div>
+            </div>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+            <!-- Section Informations de l'enchère -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6 bg-[#3A2060] text-white">
+                    <h2 class="text-xl font-semibold flex items-center">
+                        <i class="fas fa-gavel mr-3"></i>
+                        Informations de l'enchère
+                    </h2>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <!-- Nom et Description -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                {{ form_label(form.name) }}
+                            </label>
+                            {{ form_widget(form.name, {
+                                'attr': {
+                                    'class': "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5E3B89] focus:ring focus:ring-[#5E3B89] focus:ring-opacity-50",
+                                    'placeholder': "Entrez le nom de l'enchère"
+                                }
+                            }) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                {{ form_label(form.description) }}
+                            </label>
+                            {{ form_widget(form.description, {
+                                'attr': {
+                                    'class': "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5E3B89] focus:ring focus:ring-[#5E3B89] focus:ring-opacity-50",
+                                    'rows': '3',
+                                    'placeholder': "Décrivez l'enchère"
+                                }
+                            }) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                {{ form_label(form.startedAt) }}
+                            </label>
+                            <div class="relative">
+                                {{ form_widget(form.startedAt, {
+                                    'attr': {
+                                        'class': "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5E3B89] focus:ring focus:ring-[#5E3B89] focus:ring-opacity-50 pl-10",
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="far fa-calendar-plus text-gray-400"></i>
+                                </div>
+                            </div>
+                            {{ form_errors(form.startedAt) }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                {{ form_label(form.finishedAt) }}
+                            </label>
+                            <div class="relative">
+                                {{ form_widget(form.finishedAt, {
+                                    'attr': {
+                                        'class': "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5E3B89] focus:ring focus:ring-[#5E3B89] focus:ring-opacity-50 pl-10",
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="far fa-calendar-check text-gray-400"></i>
+                                </div>
+                            </div>
+                            {{ form_errors(form.finishedAt) }}
+                        </div>
+                    </div>
+
+                    <!-- Célébrité -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">
+                            Célébrité associée
+                        </label>
+                        {{ form_widget(form.celebrity, {
+                            'attr': {
+                                'class': "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5E3B89] focus:ring focus:ring-[#5E3B89] focus:ring-opacity-50",
+                            }
+                        }) }}
+                        {{ form_errors(form.celebrity) }}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="flex justify-end gap-4">
+                <a href="{{ path('admin_auction') }}"
+                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors inline-flex items-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Annuler
+                </a>
+                <button type="submit"
+                        class="px-6 py-3 bg-[#5E3B89] hover:bg-[#4D3173] text-white rounded-lg transition-colors inline-flex items-center">
+                    <i class="fas fa-save mr-2"></i>
+                    Ajouter l'enchère
+                </button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const startDate = new Date(document.querySelector('[name$="[startedAt]"]').value);
+        const endDate = new Date(document.querySelector('[name$="[finishedAt]"]').value);
+
+        if (startDate >= endDate) {
+            e.preventDefault();
+            alert('La date de fin doit être postérieure à la date de début.');
+        }
+    });
+
+    // // Affichage du nom du fichier sélectionné
+    // const imageInput = document.querySelector('input[type="file"]');
+    // const fileNameElement = document.getElementById('file-name');
+    //
+    // if (imageInput && fileNameElement) {
+    //     imageInput.addEventListener('change', function(e) {
+    //         const fileName = this.files[0]?.name;
+    //         if (fileName) {
+    //             fileNameElement.textContent = `Fichier sélectionné : ${fileName}`;
+    //         } else {
+    //             fileNameElement.textContent = '';
+    //         }
+    //     });
+    // }
+</script>
+{% endblock %}

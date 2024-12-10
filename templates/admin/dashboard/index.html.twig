@@ -1,0 +1,98 @@
+{# templates/admin/dashboard.html.twig #}
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Tableau de bord - Administration{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1 class="h3 mb-4">Tableau de bord</h1>
+
+        {# Cards statistiques #}
+{#        <div class="row mb-4">#}
+{#            {% for key, stat in stats %}#}
+{#                <div class="col-md-3">#}
+{#                    <div class="card">#}
+{#                        <div class="card-body">#}
+{#                            <h5 class="card-title text-primary">{{ key|capitalize }}</h5>#}
+{#                            <p class="card-text display-6">{{ stat.previousCount }}</p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+
+        {# Onglets des dernières activités #}
+        <div class="card">
+            <div class="card-header custom-header">
+                <h5 class="card-title mb-0">Notifications</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="activityTabs" role="tablist">
+{#                    {% for key, _ in activities %}#}
+{#                        <li class="nav-item" role="presentation">#}
+{#                            <button class="nav-link {{ loop.first ? 'active' : '' }}" id="{{ key }}-tab" data-bs-toggle="tab" data-bs-target="#{{ key }}" type="button" role="tab" aria-controls="{{ key }}" aria-selected="{{ loop.first ? 'true' : 'false' }}">{{ key|capitalize }}</button>#}
+{#                        </li>#}
+{#                    {% endfor %}#}
+                </ul>
+                <div class="tab-content" id="activityTabsContent">
+{#                    {% for key, activity_list in activities %}#}
+{#                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" id="{{ key }}" role="tabpanel" aria-labelledby="{{ key }}-tab">#}
+{#                            <div class="table-responsive">#}
+{#                                <table class="table">#}
+{#                                    <thead>#}
+{#                                    <tr>#}
+{#                                        <th>ID</th>#}
+{#                                        {% if key == 'devis' %}#}
+{#                                            <th>Personne à recontacter</th>#}
+{#                                            <th>Date de demande</th>#}
+{#                                            <th>Type Local</th>#}
+{#                                            <th>Statut</th>#}
+{#                                        {% elseif key == 'reservations' %}#}
+{#                                            <th>Statut</th>#}
+{#                                        {% elseif key == 'contacts' %}#}
+{#                                            <th>Nom</th>#}
+{#                                            <th>Email</th>#}
+{#                                            <th>Type de Formulaire</th>#}
+{#                                        {% endif %}#}
+{#                                    </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody>#}
+{#                                    {% for item in activity_list %}#}
+{#                                        <tr>#}
+{#                                            <td>{{ item.id }}</td>#}
+{#                                            {% if key == 'devis' %}#}
+{#                                                <td>#}
+{#                                                    {% if item.user %}#}
+{#                                                        {{ item.user.firstname }} {{ item.user.lastname }}<br>#}
+{#                                                        {{ item.user.email }}<br>#}
+{#                                                        {{ item.user.phone }}#}
+{#                                                    {% elseif item.guestContact %}#}
+{#                                                        {{ item.guestContact.firstname }} {{ item.guestContact.lastname }}<br>#}
+{#                                                        {{ item.guestContact.email }}<br>#}
+{#                                                        {{ item.guestContact.phone }}#}
+{#                                                    {% else %}#}
+{#                                                        Pas de contact#}
+{#                                                    {% endif %}#}
+{#                                                </td>#}
+{#                                                <td>{{ item.createdAt|date('d/m/Y') }}</td>#}
+{#                                                <td>{{ item.localType }}</td>#}
+{#                                                <td><span class="badge bg-{{ item.status == 'A traiter' ? 'warning' : 'success' }}">{{ item.status }}</span></td>#}
+{#                                            {% elseif key == 'reservations' %}#}
+{#                                                <td><span class="badge bg-{{ item.status == 'A traiter' ? 'warning' : 'success' }}">{{ item.status }}</span></td>#}
+{#                                            {% elseif key == 'contacts' %}#}
+{#                                                <td>{{ item.firstname ~ ' ' ~ item.lastname }}</td>#}
+{#                                                <td>{{ item.email }}</td>#}
+{#                                                <td>{{ item.typeOfForm }}</td>#}
+{#                                            {% endif %}#}
+{#                                        </tr>#}
+{#                                    {% endfor %}#}
+{#                                    </tbody>#}
+{#                                </table>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    {% endfor %}#}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

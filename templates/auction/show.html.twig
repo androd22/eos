@@ -1,0 +1,513 @@
+{# templates/auction/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ auction.name }} - Enchère{% endblock %}
+
+{% block body %}
+    {# Configuration pour JavaScript #}
+    <div id="auction-config"
+         data-subscription-token="{{ subscriptionToken|escape('js') }}"
+         data-mercure-url="{{ mercureUrl }}"
+         data-auction-id="{{ auction.id }}"
+         data-minimum-increment="{{ minimumIncrement }}"
+         data-user-id="{{ userId }}"
+         data-start-time="{{ auction.startedAt|date('Y-m-d H:i:s') }}"
+         data-end-time="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"
+         style="display: none;">
+    </div>
+    <div class="pt-44">
+        <div class="container mx-auto px-4 py-8 ">
+            <div class="max-w-4xl mx-auto">
+                <!-- En-tête de l'enchère -->
+{#                <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">#}
+{#                    <!-- Section Image et Infos Célébrité -->#}
+{#                    <div class="relative">#}
+{#                        #}{#                    <img src="{{ auction.image }}" alt="{{ auction.name }}" class="w-full h-64 object-cover">#}
+{#                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#1D365B] to-transparent">#}
+{#                            <div class="flex items-center">#}
+{#                                #}{#                            <img src="{{ auction.celebrity.image }}" alt="{{ auction.celebrity.stageName }}"#}
+{#                                class="w-16 h-16 rounded-full border-2 border-[#D4B054]">#}
+{#                                <div class="ml-4">#}
+{#                                    <h1 class="text-2xl text-white font-bold">{{ auction.celebrity.stageName }}</h1>#}
+{#                                    <p class="golden-text">{{ auction.celebrity.profession.name }}</p>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+
+{#                    <!-- Informations de l'enchère -->#}
+{#                    <div class="p-6">#}
+{#                        <h2 class="text-3xl font-bold text-[#1D365B] mb-4">{{ auction.name }}</h2>#}
+{#                        <p class="text-[#234B6E] mb-8">{{ auction.description }}</p>#}
+
+{#                        <!-- État actuel de l'enchère -->#}
+{#                        <div class="bg-gray-50 rounded-xl p-6 mb-8">#}
+{#                            <div class="grid grid-cols-2 gap-8">#}
+{#                                <div>#}
+{#                                    <p class="text-sm text-[#234B6E]">Total de l'enchère</p>#}
+{#                                    <p class="text-3xl font-bold golden-text" id="auction-total">#}
+{#                                        {{ productsWithBids|reduce((total, item) => total + item.highestBid, 0)|number_format(2, ',', ' ') }} €#}
+{#                                    </p>#}
+{#                                </div>#}
+{#                                <div>#}
+{#                                    <p class="text-sm text-[#234B6E]">Temps restant</p>#}
+{#                                    <p class="text-3xl font-bold text-[#1D365B]"#}
+{#                                       data-countdown="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"#}
+{#                                       id="countdown">#}
+{#                                        --:--:--#}
+{#                                    </p>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+
+                <!-- Liste des produits -->
+                <div class="space-y-8">
+                    {% for productData in productsWithBids %}
+                        {% set product = productData.product %}
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden" data-product-id="{{ product.id }}">
+                            <div class="p-6">
+                                <h3 class="text-2xl font-bold text-[#1D365B] mb-4">{{ product.name }}</h3>
+                                <p class="text-[#234B6E] mb-6">{{ product.description }}</p>
+
+                                <!-- État de l'enchère du produit -->
+                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p class="text-sm text-[#234B6E]">Enchère actuelle</p>
+                                            <p class="text-2xl font-bold golden-text" id="current-bid-{{ product.id }}">
+                                                {{ productData.highestBid|number_format(2, ',', ' ') }} €
+                                            </p>
+                                            <p class="text-sm text-[#234B6E] mt-2" id="last-bidder-{{ product.id }}">
+                                                {% set lastBid = product.bids|last %}
+                                                {% if lastBid %}
+                                                    Dernière enchère par {{ lastBid.bidder.email }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-[#234B6E]">Prix initial</p>
+                                            <p class="text-xl font-bold text-[#1D365B]">
+                                                {{ product.initialPrice|number_format(2, ',', ' ') }} €
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Formulaire d'enchère -->
+                                {% if is_granted('ROLE_USER') and auction.status == 'active' %}
+                                    <form class="product-bid-form space-y-4" data-product-id="{{ product.id }}">
+                                        <div class="space-y-2">
+                                            <label for="bid-amount-{{ product.id }}" class="block text-sm font-medium text-[#234B6E]">
+                                                Votre enchère (minimum {{ productData.minimumNextBid|number_format(2, ',', ' ') }} €)
+                                            </label>
+                                            <div class="relative">
+                                                <input type="number"
+                                                       id="bid-amount-{{ product.id }}"
+                                                       name="amount"
+                                                       step="{{ minimumIncrement }}"
+                                                       min="{{ productData.minimumNextBid }}"
+                                                       value="{{ productData.minimumNextBid }}"
+                                                       class="w-full pl-4 pr-12 py-3 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">
+                                                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#234B6E]">€</span>
+                                            </div>
+                                            <p class="text-sm text-[#234B6E]">
+                                                Incrément minimum de {{ minimumIncrement }}€
+                                            </p>
+                                        </div>
+                                        <button type="submit"
+                                                class="btn-primary w-full bg-[#1D365B] text-white py-4 rounded-xl hover:bg-[#234B6E] transition-colors">
+                                            <span class="text-center font-semibold">Enchérir sur ce lot</span>
+                                        </button>
+                                    </form>
+                                {% elseif not is_granted('ROLE_USER') %}
+                                    <div class="text-center p-6 bg-gray-50 rounded-xl">
+                                        <p class="text-[#234B6E]">Connectez-vous pour participer à l'enchère</p>
+                                        <a href="{{ path('app_login') }}" class="bg-[#1D365B] text-white px-6 py-2 rounded-xl inline-block mt-4 hover:bg-[#234B6E] transition-colors">
+                                            Se connecter
+                                        </a>
+                                    </div>
+                                {% elseif auction.status == 'finished' %}
+                                    <div class="text-center p-6 bg-gray-50 rounded-xl">
+                                        <p class="text-[#234B6E]">Cette enchère est terminée depuis le {{ auction.finishedAt|date('d/m/Y à H:i') }}</p>
+                                    </div>
+                                {% elseif auction.status == 'upcoming' %}
+                                    <div class="text-center p-6 bg-gray-50 rounded-xl">
+                                        <p class="text-[#234B6E]">Cette enchère débutera le {{ auction.startedAt|date('d/m/Y à H:i') }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupération de la configuration
+            const config = document.getElementById('auction-config');
+            if (!config) {
+                console.error('Configuration élément non trouvé');
+                return;
+            }
+
+            // Configuration initiale
+            const auctionId = config.dataset.auctionId;
+            const minimumIncrement = parseFloat(config.dataset.minimumIncrement);
+            const mercureUrl = config.dataset.mercureUrl;
+            const userId = config.dataset.userId;
+            const subscriptionToken = config.dataset.subscriptionToken;
+            const startTime = new Date(config.dataset.startTime).getTime();
+            const endTime = new Date(config.dataset.endTime).getTime();
+
+            // Formateur de monnaie
+            const currencyFormatter = new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Fonction de mise à jour de l'interface utilisateur
+            function updateAuctionUI(status) {
+                const productForms = document.querySelectorAll('.product-bid-form');
+                if (!productForms) return;
+
+                productForms.forEach(form => {
+                    const productId = form.dataset.productId;
+                    const container = form.closest('[data-product-id]');
+
+                    switch (status) {
+                        case 'upcoming':
+                            container.innerHTML = `
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <p class="text-[#234B6E]">Cette enchère débutera le ${new Date(startTime).toLocaleString('fr-FR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</p>
+                        </div>
+                    `;
+                            break;
+
+                        case 'active':
+                            // Le formulaire existe déjà, pas besoin de le recréer
+                            if (!document.getElementById(`bid-amount-${productId}`)) {
+                                initializeProductBidForms();
+                            }
+                            break;
+
+                        case 'finished':
+                            container.innerHTML = `
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <p class="text-[#234B6E]">Cette enchère est terminée depuis le ${new Date(endTime).toLocaleString('fr-FR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</p>
+                        </div>
+                    `;
+                            break;
+                    }
+                });
+            }
+
+            // Initialisation des formulaires d'enchères
+            function initializeProductBidForms() {
+                document.querySelectorAll('.product-bid-form').forEach(form => {
+                    const productId = form.dataset.productId;
+
+                    form.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const submitButton = this.querySelector('button[type="submit"]');
+                        submitButton.disabled = true;
+
+                        try {
+                            const bidInput = this.querySelector(`#bid-amount-${productId}`);
+                            const amount = parseFloat(bidInput.value);
+                            const currentBidElement = document.querySelector(`#current-bid-${productId}`);
+                            const currentBid = parseFloat(currentBidElement.textContent.replace(/[^0-9.,]/g, '').replace(',', '.'));
+                            const minRequired = currentBid + minimumIncrement;
+
+                            if (amount <= currentBid) {
+                                throw new Error(`Votre enchère doit être supérieure à ${currencyFormatter.format(currentBid)}`);
+                            }
+
+                            if (amount < minRequired) {
+                                throw new Error(`Le montant minimum est de ${currencyFormatter.format(minRequired)}`);
+                            }
+
+                            const result = await placeBid(productId, amount);
+                            if (result.success) {
+                                updateProductDisplay(result.data);
+                                updateAuctionTotal(result.data);
+                            }
+
+                        } catch (error) {
+                            alert(error.message);
+                        } finally {
+                            submitButton.disabled = false;
+                        }
+                    });
+                });
+            }
+
+            // Fonction de mise à jour du total de l'enchère
+            function updateAuctionTotal(data) {
+                const totalElement = document.getElementById('auction-total');
+                if (totalElement && data.auctionTotal) {
+                    totalElement.textContent = currencyFormatter.format(parseFloat(data.auctionTotal));
+                }
+            }
+
+            // Fonction d'initialisation de Mercure
+            function initializeMercure() {
+                const url = new URL(mercureUrl);
+                const topics = new Set(); // Utiliser un Set pour éviter les doublons
+
+                // S'abonner aux topics des produits
+                document.querySelectorAll('[data-product-id]').forEach(element => {
+                    const productId = element.dataset.productId;
+                    topics.add(`product/${productId}`);
+                });
+
+                // S'abonner au topic de l'enchère
+                topics.add(`auction/${auctionId}`);
+
+                // Ajouter les topics uniques à l'URL
+                topics.forEach(topic => url.searchParams.append('topic', topic));
+
+                console.log('Souscription aux topics:', Array.from(topics));
+
+                if (window.eventSource) {
+                    window.eventSource.close();
+                }
+
+                window.eventSource = new EventSource(url.toString(), {
+                    withCredentials: false
+                });
+
+                window.eventSource.onopen = () => {
+                    console.log('Connexion Mercure établie');
+                };
+
+                window.eventSource.addEventListener('message', (e) => {
+                    console.log('Message Mercure reçu:', e.data);
+                    try {
+                        const data = JSON.parse(e.data);
+                        updateProductDisplay(data);
+                        if (data.auctionTotal) {
+                            updateAuctionTotal(data);
+                        }
+                    } catch (error) {
+                        console.error('Erreur parsing:', error);
+                    }
+                });
+            }
+
+            // Fonction de mise à jour de l'affichage d'un produit
+            function updateProductDisplay(data) {
+                if (!data.productId) return;
+
+                const currentBidElement = document.querySelector(`#current-bid-${data.productId}`);
+                const lastBidderElement = document.querySelector(`#last-bidder-${data.productId}`);
+                const bidForm = document.querySelector(`.product-bid-form[data-product-id="${data.productId}"]`);
+
+                if (currentBidElement && data.amount) {
+                    const amount = parseFloat(data.amount);
+                    currentBidElement.textContent = currencyFormatter.format(amount);
+
+                    if (bidForm) {
+                        const bidInput = bidForm.querySelector(`#bid-amount-${data.productId}`);
+                        const newMinBid = amount + minimumIncrement;
+
+                        bidInput.min = newMinBid;
+                        bidInput.value = newMinBid;
+
+                        const label = bidForm.querySelector(`label[for="bid-amount-${data.productId}"]`);
+                        if (label) {
+                            label.textContent = `Votre enchère (minimum ${currencyFormatter.format(newMinBid)})`;
+                        }
+                    }
+                }
+
+                if (lastBidderElement && data.bidder) {
+                    lastBidderElement.textContent = `Dernière enchère par ${data.bidder}`;
+                }
+            }
+
+            // Envoi d'une enchère
+            async function placeBid(productId, amount) {
+                try {
+                    const response = await fetch(`/api/product/${productId}/bid`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ amount: parseFloat(amount) })
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Une erreur est survenue');
+                    }
+
+                    return result;
+                } catch (error) {
+                    console.error('Erreur lors de l\'enchère:', error);
+                    throw error;
+                }
+            }
+
+            // Mise à jour du statut de l'enchère
+            async function updateAuctionStatus() {
+                try {
+                    const response = await fetch(`/api/auction/${auctionId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            currentTime: new Date().toISOString()
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la mise à jour du statut');
+                    }
+
+                    const result = await response.json();
+                    updateAuctionUI(result.newStatus);
+
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
+
+            // Gestion du compte à rebours
+            function initializeCountdown() {
+                const countdownElement = document.getElementById('countdown');
+                if (!countdownElement) return;
+
+                function updateCountdown() {
+                    const now = new Date().getTime();
+
+                    if (now < startTime) {
+                        const distance = startTime - now;
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        countdownElement.textContent = days > 0 ?
+                            `Débute dans ${days}j ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}` :
+                            `Débute dans ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                        if (now + 1000 >= startTime) {
+                            updateAuctionStatus();
+                        }
+                        return true;
+                    }
+
+                    if (now < endTime) {
+                        const distance = endTime - now;
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        countdownElement.textContent = days > 0 ?
+                            `${days}j ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}` :
+                            `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        return true;
+                    }
+
+                    countdownElement.textContent = 'Terminée';
+                    updateAuctionStatus();
+                    return false;
+                }
+
+                if (updateCountdown()) {
+                    setInterval(updateCountdown, 1000);
+                }
+            }
+
+            async function checkAuctionStatus() {
+                try {
+                    const response = await fetch(`/api/auction/${auctionId}/status`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération du statut');
+                    }
+
+                    const result = await response.json();
+
+                    // Si le statut a changé, mettre à jour l'UI
+                    if (result.currentStatus !== currentStatus) {
+                        updateAuctionUI(result.currentStatus);
+                        currentStatus = result.currentStatus;
+                    }
+
+                    // Calculer le prochain interval de vérification
+                    const now = new Date().getTime();
+                    const startTime = new Date(result.startTime).getTime();
+                    const endTime = new Date(result.endTime).getTime();
+
+                    let nextCheck = 5000; // Par défaut, toutes les 5 secondes
+
+                    // Si on est à moins de 1 minute du début ou de la fin
+                    if (Math.abs(now - startTime) < 60000 || Math.abs(now - endTime) < 60000) {
+                        nextCheck = 2000; // Vérifier toutes les 2 secondes
+                    }
+
+                    // Planifier la prochaine vérification
+                    setTimeout(checkAuctionStatus, nextCheck);
+
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    // En cas d'erreur, réessayer après 5 secondes
+                    setTimeout(checkAuctionStatus, 5000);
+                }
+            }
+
+            // Nettoyage à la fermeture
+            window.addEventListener('beforeunload', () => {
+                if (window.eventSource) {
+                    window.eventSource.close();
+                }
+            });
+
+            // Initialisation
+            function initialize() {
+                console.log('Démarrage de l\'application...');
+                initializeMercure();
+                initializeCountdown();
+                initializeProductBidForms();
+                updateAuctionStatus();
+                checkAuctionStatus();
+            }
+
+            // Lancement de l'initialisation
+            initialize();
+        });
+    </script>
+{% endblock %}

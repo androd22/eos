@@ -1,0 +1,31 @@
+mercure:
+    hubs:
+        default:
+            url: '%env(MERCURE_URL)%'
+            public_url: '%env(MERCURE_PUBLIC_URL)%'
+            jwt:
+                secret: '%env(MERCURE_JWT_SECRET)%'
+                publish: ['*']  # Permissions pour publier sur tous les topics
+                subscribe: ['*']  # Permissions pour s'abonner à tous les topics
+
+# Configuration CORS plus détaillée
+#nelmio_cors:
+#    defaults:
+#        origin_regex: false
+#        allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+#        allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+#        allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
+#        expose_headers: ['Link']
+#        max_age: 3600
+#        hosts: []
+#        forced_allow_origin_value: ~
+#    paths:
+#        '^/api/':
+#            allow_origin: ['*']
+#            allow_headers: ['*']
+#            allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS']
+#            max_age: 3600
+#        '^/.well-known/mercure':
+#            allow_origin: ['*']
+#            allow_methods: ['GET']
+#            max_age: 3600

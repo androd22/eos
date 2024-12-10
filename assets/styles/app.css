@@ -1,0 +1,279 @@
+/* public/styles/main.css */
+
+/*Main*/
+:root {
+    --velvet-blue: #1D365B;
+    --warm-blue: #234B6E;
+    --gold-light: #E8C98B;
+    --gold-dark: #D4B054;
+    --white: #FFFFFF;
+}
+
+/****flash-alert ******/
+.custom-gradient {
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin: 9.5rem 0;
+    color: #1D365B;
+}
+
+.btn-admin {
+    background: linear-gradient(135deg, #4B2D83 0%, #2D1657 100%);
+    color: white;
+
+    transition: all 0.3s ease;
+}
+
+
+/* Version 2 - Effet brillant doré */
+.btn-admin {
+    background: linear-gradient(135deg, #4B2D83 0%, #2D1657 100%);
+    color: #FFF;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 2px solid #E8C98B;
+}
+
+.btn-admin::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(232, 201, 139, 0.2), transparent);
+    animation: shine 2s infinite;
+}
+
+.btn-admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(232, 201, 139, 0.3);
+}
+
+/*!* Version 3 - Dégradé avec touche dorée *!*/
+/*.btn-admin {*/
+/*    background: linear-gradient(135deg, #4B2D83 0%, #2D1657 100%),*/
+/*    linear-gradient(45deg, transparent, rgba(232, 201, 139, 0.15));*/
+/*    background-blend-mode: overlay;*/
+/*    color: white;*/
+/*    transition: all 0.3s ease;*/
+/*}*/
+
+/*.btn-admin:hover {*/
+/*    transform: translateY(-2px);*/
+/*    box-shadow: 0 4px 12px rgba(232, 201, 139, 0.3);*/
+/*    background: linear-gradient(135deg, #4B2D83 0%, #2D1657 100%),*/
+/*    linear-gradient(45deg, transparent, rgba(232, 201, 139, 0.25));*/
+/*}*/
+
+.bg-custom-gradient{
+    background: linear-gradient(135deg, rgb(232, 201, 139) 0%, rgba(212, 176, 84, 0.1) 100%);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Typography */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--velvet-blue);
+}
+
+.section-subtitle {
+    font-size: 1.125rem;
+    color: var(--warm-blue);
+}
+
+/*Gradients*/
+.royal-gradient {
+    background: linear-gradient(135deg, #1D365B 0%, #234B6E 100%);
+}
+
+.golden-gradient {
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+}
+
+.soft-gold {
+    background: linear-gradient(135deg, rgba(232, 201, 139, 0.2) 0%, rgba(212, 176, 84, 0.2) 100%);
+}
+
+.golden-text {
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/****Components****/
+/* Cards */
+.white-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(232, 201, 139, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(29, 54, 91, 0.1);
+    transition: all 0.3s ease;
+}
+
+.white-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(29, 54, 91, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    color: #1D365B;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 176, 84, 0.3);
+}
+
+.btn-outline {
+    border: 2px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    color: white;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    color: #1D365B;
+    transform: translateY(-2px);
+    border-image-source: none;
+
+}
+
+/* Navigation */
+.menu-link {
+    color: white;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.menu-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    transition: width 0.3s ease;
+}
+
+.menu-link:hover::after {
+    width: 100%;
+}
+
+/* Stats Card */
+.stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(232, 201, 139, 0.3);
+}
+
+/*Animations*/
+.hover-lift {
+    transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+.bg-login{
+    background: url("../img/bg-login.webp");
+    background-size: cover;
+}
+
+.golden-gradient-hr {
+    border: 0;
+    height: 2px;
+    background-image: linear-gradient(135deg, #E8C98B, #D4B054);
+    width: 50%; /* Ajustez la largeur selon vos besoins */
+    margin: 0  auto;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.alert-shine {
+    position: relative;
+    background: linear-gradient(135deg, #E8C98B 0%, #D4B054 100%);
+    overflow: hidden; /* Assure que l'effet reste dans les limites de l'alerte */
+}
+
+.alert-shine::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(75deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 45%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.3) , rgba(255, 255, 255, 0.5) 100%);
+    transform: translateX(-100%);
+    animation: shine 2s ease-in-out infinite;
+}
+
+/* responsive burger*/
+.menu-link {
+    @apply text-white hover:text-golden-text transition-colors duration-300;
+}
+
+/* Animation pour le hover-lift */
+.hover-lift {
+    transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
