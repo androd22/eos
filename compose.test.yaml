@@ -1,16 +1,24 @@
+version: '3.8'
+
 services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Autorise un mot de passe vide pour le root
-      MYSQL_DATABASE: eos_db_test
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Autorise un mot de passe vide pour root
+      MYSQL_DATABASE: eos_db_test        # Crée automatiquement la BDD
     ports:
-      - '3306:3306'
+      - '3306:3306'                      # Expose le port MySQL
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"                  # Limite la taille des logs à 10 Mo
+        max-file: "3"                    # Conserve les 3 derniers fichiers de logs
+
   php:
     image: dunglas/frankenphp
     environment:
@@ -18,7 +26,7 @@ services:
     env_file:
       - .env.test
     volumes:
-      - .:/app
+      - .:/app                          # Monte le dossier local dans le conteneur
     working_dir: /app
     command: >
       sh -c "
@@ -28,18 +36,37 @@ services:
       "
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthy      # Attend que le service MySQL soit prêt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   phpmyadmin:
     image: phpmyadmin
     environment:
       PMA_ARBITRARY: 1
-      PMA_HOST: db
+      PMA_HOST: db                      # Point vers le conteneur MySQL
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - '8080:80'                       # Expose PHPMyAdmin sur localhost:8080
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mailhog:
     image: mailhog/mailhog
+    ports:
+      - '8025:8025'                     # Interface MailHog disponible sur localhost:8025
     logging:
-      driver: 'none'
+      driver: "none"                    # Désactive les logs (peu utiles en dev)
