@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Celebrity{% endblock %}
+
+{% block body %}
+    <h1>Celebrity</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ celebrity.id }}</td>
+            </tr>
+            <tr>
+                <th>StageName</th>
+                <td>{{ celebrity.stageName }}</td>
+            </tr>
+            <tr>
+                <th>RealFirstName</th>
+                <td>{{ celebrity.realFirstName }}</td>
+            </tr>
+            <tr>
+                <th>RealLastName</th>
+                <td>{{ celebrity.realLastName }}</td>
+            </tr>
+            <tr>
+                <th>Biography</th>
+                <td>{{ celebrity.biography }}</td>
+            </tr>
+            <tr>
+                <th>Image</th>
+                <td>{{ celebrity.image }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_admin_celebrity_index') }}">back to list</a>
+
+    <a href="{{ path('app_admin_celebrity_edit', {'id': celebrity.id}) }}">edit</a>
+
+    {{ include('admin/celebrity/_delete_form.html.twig') }}
+{% endblock %}

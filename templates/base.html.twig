@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset("styles/app.css") }}">
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+            {{ encore_entry_script_tags('auction') }}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body class="bg-white">
+    {{ include("components/nav.html.twig") }}
+    <div class="fixed top-0 w-full z-60">
+        {% for flash in app.flashes('custom-success') %}
+            <div class="alert-shine {{ flash.styleClass }} shadow-md mx-auto w-full mt-4 py-2 px-4 text-center rounded-md ">
+                {{ flash.message }}
+            </div>
+        {% endfor %}
+    </div>
+
+        {% block body %}{% endblock %}
+
+    </body>
+</html>

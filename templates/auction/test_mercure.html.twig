@@ -1,0 +1,85 @@
+{# templates/test/mercure.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mx-auto p-4 mt-48" >
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold mb-4">Test Mercure</h1>
+            <button id="publishBtn" class="bg-blue-500 text-white px-4 py-2 rounded">
+                Publier un message
+            </button>
+        </div>
+
+        <div id="connection-status" class="mb-4 p-2 rounded"></div>
+
+        <div id="messages" class="border p-4 rounded min-h-[200px]">
+            <h2 class="font-bold mb-2">Messages reçus:</h2>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesDiv = document.getElementById('messages');
+            const statusDiv = document.getElementById('connection-status');
+            const publishBtn = document.getElementById('publishBtn');
+
+            // Configuration Mercure
+            console.log('Configuration de Mercure...');
+            const url = new URL('http://localhost:8000/.well-known/mercure');
+            url.searchParams.append('topic', 'test');
+
+            console.log('URL Mercure:', url.toString());
+
+            // Création de l'EventSource
+            const eventSource = new EventSource(url.toString(), {
+                withCredentials: false
+            });
+
+            // Gestion des événements
+            eventSource.onopen = () => {
+                console.log('Connexion établie avec Mercure');
+                statusDiv.textContent = 'Connecté au serveur';
+                statusDiv.className = 'mb-4 p-2 rounded bg-green-100 text-green-700';
+            };
+
+            eventSource.onerror = (error) => {
+                console.error('Erreur Mercure:', error);
+                statusDiv.textContent = 'Erreur de connexion';
+                statusDiv.className = 'mb-4 p-2 rounded bg-red-100 text-red-700';
+            };
+
+            eventSource.onmessage = (event) => {
+                console.log('Message reçu:', event.data);
+                const data = JSON.parse(event.data);
+                const messageElement = document.createElement('div');
+                messageElement.className = 'mb-2 p-2 bg-gray-100 rounded';
+                messageElement.innerHTML = `
+                    <p><strong>Message:</strong> ${data.message}</p>
+                    <p><small>Reçu à: ${data.time}</small></p>
+                `;
+                messagesDiv.appendChild(messageElement);
+            };
+
+            // Bouton de publication
+            publishBtn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/test-publish', {
+                        method: 'GET'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la publication');
+                    }
+
+                    console.log('Message publié avec succès');
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la publication du message');
+                }
+            });
+        });
+    </script>
+{% endblock %}

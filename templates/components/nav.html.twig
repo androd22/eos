@@ -1,0 +1,91 @@
+{# nav.html.twig #}
+<header class="fixed w-full z-50">
+    <div class="container-fluid mx-auto">
+        <nav class="w-full royal-gradient py-3">
+            <div class="w-11/12 lg:w-9/12 mx-auto">
+                {# Desktop et Mobile Menu #}
+                <div class="flex justify-between items-center">
+                    {# Logo et Titre #}
+                    <div class="flex items-center">
+                        <a href="{{ path('app_home') }}" class="flex items-center space-x-2">
+                            <img src="{{ asset('img/3eos-logo.png') }}" class="w-16 sm:w-20 md:w-24 lg:w-32 transition-all" alt="logo-3eos">
+                            <h1 class="text-lg sm:text-xl md:text-2xl font-bold">
+                                <span class="golden-text">Enchères Et En</span>
+                                <span class="text-white"> Os</span>
+                            </h1>
+                        </a>
+                    </div>
+
+                    {# Menu Desktop #}
+                    <div class="hidden lg:flex items-center space-x-8">
+                        <a href="#mission" class="menu-link transition-colors hover:text-[#D4B054]">Notre Mission</a>
+                        <a href="#auctions" class="menu-link transition-colors hover:text-[#D4B054]">Enchères</a>
+                        <a href="#impact" class="menu-link transition-colors hover:text-[#D4B054]">Impact</a>
+
+                        {% if app.user %}
+                            {# Menu utilisateur connecté #}
+                            <a href="{{ path('app_profile') }}" class="btn-primary px-6 py-2 rounded-full transition-transform hover:scale-105">
+                                Mon Profil
+                            </a>
+
+                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ASSISTANT') %}
+                                <a href="{{ path('app_dashboard') }}" class="btn-admin px-6 py-2 rounded-full transition-transform hover:scale-105">
+                                    Administration
+                                </a>
+                            {% endif %}
+
+                            <a href="{{ path('app_logout') }}" class="btn bg-white py-2 px-6 rounded-full  text-center text-[#1D365B] hover:text-[#1D365B] transition-colors">
+                                Déconnexion
+                            </a>
+                        {% else %}
+                            {# Menu visiteur #}
+                            <a href="{{ path('app_login') }}" class="btn-primary px-6 py-2 rounded-full transition-transform hover:scale-105">
+                                Se connecter
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {# Bouton Menu Mobile #}
+                    <button id="menu-toggle" class="lg:hidden text-white p-2 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {# Menu Mobile #}
+                <div id="mobile-menu" class="hidden lg:hidden">
+                    <div class="flex flex-col space-y-4 pt-4 pb-6">
+                        <a href="#mission" class="menu-link block px-4 py-2 hover:bg-white/10 transition-colors">Notre Mission</a>
+                        <a href="#auctions" class="menu-link block px-4 py-2 hover:bg-white/10 transition-colors">Enchères</a>
+                        <a href="#impact" class="menu-link block px-4 py-2 hover:bg-white/10 transition-colors">Impact</a>
+
+                        <div class="px-4 space-y-3">
+                            {% if app.user %}
+                                {# Menu mobile utilisateur connecté #}
+                                <a href="{{ path('app_profile') }}" class="btn-primary block py-2 text-center rounded-full transition-transform hover:scale-105">
+                                    Mon Profil
+                                </a>
+
+                                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ASSISTANT') %}
+                                    <a href="{{ path('app_dashboard') }}" class="btn-admin block py-2 text-center rounded-full transition-transform hover:scale-105">
+                                        Administration
+                                    </a>
+                                {% endif %}
+
+                                <a href="{{ path('app_logout') }}" class=" block bg-white py-2 text-center rounded-full transition-transform hover:scale-105">
+                                    Déconnexion
+                                </a>
+                            {% else %}
+                                {# Menu mobile visiteur #}
+                                <a href="{{ path('app_login') }}" class="btn-primary block py-2 text-center rounded-full transition-transform hover:scale-105">
+                                    Se connecter
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>

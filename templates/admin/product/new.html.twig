@@ -1,0 +1,173 @@
+{# templates/admin/product/new.html.twig #}
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gestion du produit{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header avec style coordonné -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#3A2060] mb-2">{{ product.id ? 'Modifier' : 'Ajouter' }} un produit</h1>
+                    <p class="text-gray-600">{{ product.id ? 'Modifiez les informations du' : 'Créez un nouveau' }} produit en remplissant les informations ci-dessous</p>
+                </div>
+            </div>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+        <!-- Section Informations du produit -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6 bg-[#3A2060] text-white">
+                <h2 class="text-xl font-semibold flex items-center">
+                    <i class="fas fa-box mr-3"></i>
+                    Informations du produit
+                </h2>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Nom et Description -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        {{ form_label(form.name, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(form.name) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="space-y-2">
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(form.description) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                </div>
+
+                <!-- Prix -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        {{ form_label(form.initialPrice, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(form.initialPrice) }}
+                        {{ form_errors(form.initialPrice) }}
+                    </div>
+
+                    <div class="space-y-2">
+                        {{ form_label(form.finalPrice, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(form.finalPrice) }}
+                        {{ form_errors(form.finalPrice) }}
+                    </div>
+                </div>
+
+                <!-- Auction -->
+                {% if form.auction is defined %}
+                    <div class="space-y-2">
+                        {{ form_label(form.auction, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(form.auction) }}
+                        {{ form_errors(form.auction) }}
+                    </div>
+                {% endif %}
+
+                <!-- Images -->
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Images du produit</label>
+                        <div
+                                class="image-collection space-y-4"
+                                data-prototype="{{ form_widget(form.images.vars.prototype)|e('html_attr') }}"
+                                data-index="{{ form.images|length }}"
+                        >
+                            {% for image in form.images %}
+                                <div class="image-entry flex items-center gap-4">
+                                    {{ form_widget(image.src) }}
+                                    {{ form_widget(image.alt) }}
+                                    {{ form_widget(image.typeImage) }}
+                                    <button type="button" class="remove-image px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="add-image mt-4 px-4 py-2 bg-[#5E3B89] text-white rounded-lg hover:bg-[#4D3173]">
+                            <i class="fas fa-plus mr-2"></i>Ajouter une image
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('admin_product') }}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors inline-flex items-center">
+                <i class="fas fa-times mr-2"></i>
+                Annuler
+            </a>
+            <button type="submit" class="px-6 py-3 bg-[#5E3B89] hover:bg-[#4D3173] text-white rounded-lg transition-colors inline-flex items-center">
+                <i class="fas fa-save mr-2"></i>
+                {{ product.id ? 'Modifier' : 'Ajouter' }} le produit
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addImageButton = document.querySelector('.add-image');
+            const imageCollection = document.querySelector('.image-collection');
+            let index = imageCollection.dataset.index;
+
+            // Fonction pour ajouter un nouveau champ d'image
+            const addImageField = () => {
+                const prototype = imageCollection.dataset.prototype;
+                const newForm = prototype.replace(/__name__/g, index);
+                const div = document.createElement('div');
+                div.className = 'image-entry flex items-center gap-4';
+                div.innerHTML = newForm;
+
+                // Ajouter le bouton de suppression
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'remove-image px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600';
+                removeButton.innerHTML = '<i class="fas fa-times"></i>';
+                div.appendChild(removeButton);
+
+                imageCollection.appendChild(div);
+                index++;
+
+                // Ajouter l'événement pour afficher le nom du fichier
+                const input = div.querySelector('input[type="file"]');
+                setupFileInput(input);
+            };
+
+            // Fonction pour configurer l'affichage du nom du fichier
+            const setupFileInput = (input) => {
+                input.addEventListener('change', function() {
+                    const fileName = this.files[0]?.name;
+                    if (fileName) {
+                        const p = document.createElement('p');
+                        p.className = 'mt-1 text-sm text-gray-500';
+                        p.textContent = `Fichier sélectionné : ${fileName}`;
+
+                        // Supprimer l'ancien message s'il existe
+                        const oldMessage = input.parentElement.querySelector('p');
+                        if (oldMessage) oldMessage.remove();
+
+                        input.parentElement.appendChild(p);
+                    }
+                });
+            };
+
+            // Événement pour ajouter une nouvelle image
+            addImageButton.addEventListener('click', addImageField);
+
+            // Événement pour supprimer une image
+            imageCollection.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-image')) {
+                    e.target.closest('.image-entry').remove();
+                }
+            });
+
+            // Configuration initiale des champs existants
+            document.querySelectorAll('.image-entry input[type="file"]').forEach(setupFileInput);
+        });
+    </script>
+{% endblock %}

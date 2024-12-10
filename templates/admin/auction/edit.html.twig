@@ -1,0 +1,155 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier l'enchère{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header avec style coordonné -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#3A2060] mb-2">Modifier l'enchère #{{ auction.id }}</h1>
+                    <p class="text-gray-600">Modifiez les informations de l'enchère</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Flash -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if label == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+        <!-- Section Informations de l'enchère -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6 bg-[#3A2060] text-white">
+                <h2 class="text-xl font-semibold flex items-center">
+                    <i class="fas fa-gavel mr-3"></i>
+                    Informations de l'enchère
+                </h2>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Nom et Description -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">{{ form_label(form.name) }}</label>
+                        {{ form_widget(form.name) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">{{ form_label(form.description) }}</label>
+                        {{ form_widget(form.description) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">{{ form_label(form.startedAt) }}</label>
+                        <div class="relative">
+                            {{ form_widget(form.startedAt) }}
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-calendar-plus text-gray-400"></i>
+                            </div>
+                        </div>
+                        {{ form_errors(form.startedAt) }}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">{{ form_label(form.finishedAt) }}</label>
+                        <div class="relative">
+                            {{ form_widget(form.finishedAt) }}
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-calendar-check text-gray-400"></i>
+                            </div>
+                        </div>
+                        {{ form_errors(form.finishedAt) }}
+                    </div>
+                </div>
+
+                <!-- Célébrité -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">{{ form_label(form.celebrity) }}</label>
+                    {{ form_widget(form.celebrity) }}
+                    {{ form_errors(form.celebrity) }}
+                </div>
+
+                <!-- Image actuelle et Upload -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Image de l'enchère</label>
+                    <div class="flex items-start space-x-6">
+                        {% if auction.image %}
+                            <div>
+                                <img src="{{ asset('uploads/auctions/' ~ auction.image) }}"
+                                     alt="Image actuelle"
+                                     class="h-32 w-32 object-cover rounded-lg">
+                                <p class="text-sm text-gray-500 mt-2">Image actuelle</p>
+                            </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            {{ form_widget(form.image) }}
+                            <p class="mt-1 text-sm text-gray-500" id="file-name"></p>
+                            {{ form_errors(form.image) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('admin_auction') }}"
+               class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors inline-flex items-center">
+                <i class="fas fa-times mr-2"></i>
+                Annuler
+            </a>
+            <button type="submit"
+                    class="px-6 py-3 bg-[#5E3B89] hover:bg-[#4D3173] text-white rounded-lg transition-colors inline-flex items-center">
+                <i class="fas fa-save mr-2"></i>
+                Enregistrer les modifications
+            </button>
+        </div>
+        {{ form_end(form) }}
+
+        <!-- Formulaire de suppression -->
+        <div class="mt-6">
+            {{ include('admin/auction/_delete_form.html.twig') }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const startDate = new Date(document.querySelector('[name$="[startedAt]"]').value);
+            const endDate = new Date(document.querySelector('[name$="[finishedAt]"]').value);
+
+            if (startDate >= endDate) {
+                e.preventDefault();
+                alert('La date de fin doit être postérieure à la date de début.');
+            }
+        });
+
+        // Affichage du nom du fichier sélectionné
+        const imageInput = document.querySelector('input[type="file"]');
+        const fileNameElement = document.getElementById('file-name');
+
+        if (imageInput && fileNameElement) {
+            imageInput.addEventListener('change', function(e) {
+                const fileName = this.files[0]?.name;
+                if (fileName) {
+                    fileNameElement.textContent = `Fichier sélectionné : ${fileName}`;
+                } else {
+                    fileNameElement.textContent = '';
+                }
+            });
+        }
+    </script>
+{% endblock %}

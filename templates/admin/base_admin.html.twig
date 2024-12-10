@@ -1,0 +1,129 @@
+{# templates/base_admin.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="bg-[#EFEFF4]">
+<!-- Bouton burger pour mobile -->
+<button
+        onclick="toggleSidebar()"
+        class="fixed top-6 left-2 z-50 md:hidden bg-[#5E3B89] hover:bg-[#4D3173] text-white w-8 h-8 rounded-lg transition-all duration-300 shadow-lg flex items-center justify-center"
+        aria-label="Ouvrir le menu">
+    <i class="fas fa-bars text-sm" id="menuIcon"></i>
+</button>
+
+<!-- Backdrop avec animation améliorée -->
+<div
+        onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/50 z-30 md:hidden hidden transition-all duration-300 backdrop-blur-sm"
+        id="backdrop">
+</div>
+
+
+<!-- Sidebar -->
+<div class="flex min-h-screen">
+    <aside class="fixed top-0 left-0 h-screen w-72 shadow-lg bg-[#3A2060] transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto" id="sidebar">
+        <!-- Logo/Brand -->
+        <a href="" class="flex items-center justify-center p-4 bg-[#2E184F]">
+            <img src="{{ asset('img/3eos-logo.png') }}" alt="3EOS Logo" class="h-12 w-12 object-cover">
+            <span class="ml-3 text-xl font-bold text-white tracking-wider">Administration</span>
+        </a>
+
+        <!-- Menu principal -->
+        <div class="px-4 py-2 text-xs font-semibold text-[#D9D9E4] uppercase tracking-wider">
+            Menu principal
+        </div>
+
+        <nav class="px-2 py-3">
+            <a href=""
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_dashboard' %}bg-[#4D3173]{% endif %}">
+                <i class="fas fa-home w-5"></i>
+                <span class="ml-3">Tableau de bord</span>
+            </a>
+
+            <a href="{{ path("admin_user_index") }}"
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_user_index' %}bg-[#4D3173]{% endif %}">
+                <i class="fas fa-users w-5"></i>
+                <span class="ml-3">Utilisateurs</span>
+            </a>
+            <a href="{{ path("admin_celebrity") }}"
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_celebrity_index' %}bg-[#4D3173]{% endif %}">
+                <i class="fas fa-users w-5"></i>
+                <span class="ml-3">Célébrités</span>
+            </a>
+            <a href="{{ path("admin_auction") }}"
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_quote' %}bg-[#4D3173]{% endif %}">
+                <i class="fas fa-gavel"></i>
+                <span class="ml-3">Enchères</span>
+            </a>
+
+            <a href="{{ path("admin_product") }}"
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_reservation' %}bg-[#4D3173]{% endif %}">
+                <i class="fa-brands fa-product-hunt"></i>
+                <span class="ml-3">Produits</span>
+            </a>
+
+            <a href=""
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_contact' %}bg-[#4D3173]{% endif %}">
+                <i class="fas fa-file-invoice"></i>
+                <span class="ml-3">Commandes</span>
+            </a>
+
+            <a href=""
+               class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200 {% if app.request.get('_route') == 'admin_review' %}bg-[#4D3173]{% endif %}">
+                <i class="fas fa-comments w-5"></i>
+                <span class="ml-3">Commentaires</span>
+            </a>
+
+            <hr class="my-4 border-[#D9D9E4]/30">
+
+            <a href="{{ path('app_home') }}" class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200">
+                <i class="fas fa-laptop w-5"></i>
+                <span class="ml-3">Aller sur le site</span>
+            </a>
+
+            <a href="{{ path('app_logout') }}" class="flex items-center px-4 py-3 text-[#FFFFFF] hover:bg-[#4D3173] rounded-lg transition-colors duration-200">
+                <i class="fas fa-arrow-right-from-bracket w-5"></i>
+                <span class="ml-3">Déconnexion</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Contenu principal -->
+    <main class="flex-1 ml-0 md:ml-72 p-8 transition-all duration-300">
+        {% block body %}{% endblock %}
+    </main>
+</div>
+
+{% block javascripts %}
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            const menuIcon = document.getElementById('menuIcon');
+            const button = menuIcon.parentElement;
+
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+
+            if (menuIcon.classList.contains('fa-bars')) {
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-times');
+                button.classList.add('bg-[#4D3173]');
+            } else {
+                menuIcon.classList.remove('fa-times');
+                menuIcon.classList.add('fa-bars');
+                button.classList.remove('bg-[#4D3173]');
+            }
+        }
+    </script>
+{% endblock %}
+</body>
+</html>
