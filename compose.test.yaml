@@ -1,5 +1,4 @@
 services:
-
   db:
     image: mysql:8.0
     environment:
@@ -28,7 +27,8 @@ services:
         php -S 0.0.0.0:80 -t public
       "
     depends_on:
-      db
+      db:
+        condition: service_healthy
 
   phpmyadmin:
     image: phpmyadmin
