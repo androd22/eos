@@ -1,72 +1,52 @@
-version: '3.8'
-
 services:
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Autorise un mot de passe vide pour root
-      MYSQL_DATABASE: eos_db_test        # Crée automatiquement la BDD
-    ports:
-      - '3306:3306'                      # Expose le port MySQL
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"                  # Limite la taille des logs à 10 Mo
-        max-file: "3"                    # Conserve les 3 derniers fichiers de logs
-
   php:
-    image: dunglas/frankenphp
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frankenphp_dev
     environment:
       APP_ENV: test
-    env_file:
-      - .env.test
     volumes:
-      - .:/app                          # Monte le dossier local dans le conteneur
+      - .:/app
+      - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
     command: >
       sh -c "
         install-php-extensions pdo_mysql xdebug &&
         echo 'xdebug.mode=coverage' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini &&
-        php -S 0.0.0.0:80 -t public
+        frankenphp run --config /etc/caddy/Caddyfile
       "
     depends_on:
       db:
-        condition: service_healthy      # Attend que le service MySQL soit prêt
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: eos_db_test
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - '3306:3306'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "symfony", "--password=symfony"]
       interval: 5s
       timeout: 5s
       retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   phpmyadmin:
     image: phpmyadmin
     environment:
       PMA_ARBITRARY: 1
-      PMA_HOST: db                      # Point vers le conteneur MySQL
+      PMA_HOST: db
+      PMA_USER: symfony
+      PMA_PASSWORD: symfony
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - '8080:80'                       # Expose PHPMyAdmin sur localhost:8080
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   mailhog:
     image: mailhog/mailhog
-    ports:
-      - '8025:8025'                     # Interface MailHog disponible sur localhost:8025
     logging:
-      driver: "none"                    # Désactive les logs (peu utiles en dev)
+      driver: 'none'
