@@ -8,12 +8,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: >
-      sh -c "
-        install-php-extensions pdo_mysql xdebug &&
-        echo 'xdebug.mode=coverage' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini &&
-        php -S 0.0.0.0:80 -t public
-      "
+    command: sh -c "install-php-extensions pdo_mysql xdebug && echo 'xdebug.mode=coverage' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && php -S 0.0.0.0:80 -t public"
     depends_on:
       db:
         condition: service_healthy
@@ -21,7 +16,7 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Autorise un mot de passe vide pour le root
       MYSQL_DATABASE: eos_db_test
     ports:
       - '3306:3306'
