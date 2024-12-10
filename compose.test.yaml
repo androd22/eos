@@ -14,6 +14,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
 
   db:
     image: mysql:8.0
@@ -23,18 +28,19 @@ services:
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfony
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=secret"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "symfony", "--password=symfony"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
 
   phpmyadmin:
     image: phpmyadmin
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: db
-      PMA_USER: root
-      PMA_PASSWORD: secret
+      PMA_USER: symfony
+      PMA_PASSWORD: symfony
     depends_on:
       db:
         condition: service_healthy
