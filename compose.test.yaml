@@ -11,10 +11,13 @@ services:
       MYSQL_DATABASE: eos_db
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfony
-    command:
-      - --default-authentication-plugin=mysql_native_password
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
+    command: >
+      sh -c "
+        install-php-extensions pdo_mysql xdebug &&
+        php -m | grep pdo_mysql &&  # Vérifie que l'extension est bien installée
+        echo 'xdebug.mode=coverage' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini &&
+        php -S 0.0.0.0:80 -t public
+      "
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=secret"]
       interval: 10s
