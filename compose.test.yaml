@@ -7,21 +7,15 @@ services:
     environment:
       APP_ENV: test
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db_test?serverVersion=8.0
-      MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
-      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
     volumes:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2019/metrics", "||", "exit", "1"]
-      interval: 10s
+      test: ["CMD-SHELL", "mysql -h db -u symfony -psymfony eos_db_test -e 'SELECT 1;'"]
+      interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 30s
-    ports:
-      - "80:80"
-      - "2019:2019"
+      retries: 10
     depends_on:
       db:
         condition: service_healthy
@@ -48,16 +42,11 @@ services:
       PMA_HOST: db
       PMA_USER: symfony
       PMA_PASSWORD: symfony
-    ports:
-      - "8080:80"
     depends_on:
       db:
         condition: service_healthy
 
   mailhog:
     image: mailhog/mailhog
-    ports:
-      - "1025:1025"
-      - "8025:8025"
     logging:
       driver: 'none'
