@@ -1,3 +1,7 @@
+networks:
+  test_network:
+    driver: bridge
+
 services:
   db:
     container_name: mysqlfpeos
@@ -22,23 +26,31 @@ services:
       - test_network
 
   php:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: frankenphp_test
-    container_name: phpfpeos
+    image: dunglas/frankenphp
     environment:
       APP_ENV: test
-      DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
-      XDEBUG_MODE: coverage
+    env_file:
+      - .env.test
     volumes:
       - .:/app
+    working_dir: /app
+    command: >
+      sh -c "
+        install-php-extensions pdo_mysql xdebug &&
+        echo 'xdebug.mode=coverage' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini &&
+        php -S 0.0.0.0:80 -t public
+      "
     depends_on:
       db:
         condition: service_healthy
     networks:
       - test_network
 
-networks:
-  test_network:
-    driver: bridge
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - "8025:8025"
+    networks:
+      - test_network
