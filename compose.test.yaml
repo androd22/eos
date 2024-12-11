@@ -25,6 +25,12 @@ services:
       - "3308:3306"
     networks:
       - test_network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
 
   php:
     build:
@@ -45,6 +51,12 @@ services:
         condition: service_healthy
     networks:
       - test_network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
 
   mailhog:
     image: mailhog/mailhog

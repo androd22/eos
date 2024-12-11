@@ -75,17 +75,25 @@ jobs:
           # Création du dossier migrations
           docker compose -f compose.test.yaml exec -T php mkdir -p migrations
           
-          # Drop et recréation de la base de données
-          docker compose -f compose.test.yaml exec -T db mysql -uroot -psecret -e "
-            DROP DATABASE IF EXISTS eos_db_test;
-            CREATE DATABASE eos_db_test;
-            GRANT ALL PRIVILEGES ON eos_db_test.* TO 'symfony'@'%';
-            FLUSH PRIVILEGES;
-          "
+          # Drop et recréation de la base de données avec retry
+          for i in {1..3}; do
+            docker compose -f compose.test.yaml exec -T db mysql -uroot -psecret -e "
+              DROP DATABASE IF EXISTS eos_db_test;
+              CREATE DATABASE eos_db_test;
+              GRANT ALL PRIVILEGES ON eos_db_test.* TO 'symfony'@'%';
+              FLUSH PRIVILEGES;
+            " && break || sleep 5
+          done
           
-          # Création du schéma et chargement des fixtures
-          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
-          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
+          # Création du schéma avec retry
+          for i in {1..3}; do
+            docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test && break || sleep 5
+          done
+          
+          # Chargement des fixtures avec retry
+          for i in {1..3}; do
+            docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction && break || sleep 5
+          done
 
       - name: Run tests
         run: |
