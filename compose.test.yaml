@@ -11,8 +11,11 @@ services:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
-    depends_on:
-      - db
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
 
   db:
     image: mysql:8.0
@@ -23,18 +26,3 @@ services:
       MYSQL_PASSWORD: symfony
     ports:
       - '3306:3306'
-
-  phpmyadmin:
-    image: phpmyadmin
-    environment:
-      PMA_ARBITRARY: 1
-      PMA_HOST: db
-      PMA_USER: symfony
-      PMA_PASSWORD: symfony
-    depends_on:
-      - db
-
-  mailhog:
-    image: mailhog/mailhog
-    logging:
-      driver: 'none'

@@ -42,35 +42,23 @@ jobs:
         run: docker compose -f compose.test.yaml up -d
 
       - name: Wait for containers
-        uses: nick-fields/retry@v2
-        with:
-          timeout_seconds: 120
-          max_attempts: 3
-          command: |
-            until docker compose -f compose.test.yaml exec -T db mysqladmin ping -h db -u symfony --password=symfony; do
-              echo "Waiting for MySQL to be ready..."
-              sleep 2
-            done
-            echo "MySQL is ready!"
+        timeout-minutes: 2
+        run: |
+          until docker compose -f compose.test.yaml ps | grep php | grep "healthy"; do
+            echo "Waiting for PHP to be ready..."
+            sleep 2
+          done
 
       - name: Create Database
-        uses: nick-fields/retry@v2
-        with:
-          timeout_seconds: 60
-          max_attempts: 3
-          command: |
-            docker compose -f compose.test.yaml exec -T php php -d memory_limit=1G bin/console doctrine:database:create --env=test --if-not-exists
-            docker compose -f compose.test.yaml exec -T php php -d memory_limit=1G bin/console doctrine:schema:create --env=test
-            docker compose -f compose.test.yaml exec -T php php -d memory_limit=1G bin/console doctrine:fixtures:load --env=test --no-interaction
+        run: |
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run tests
-        uses: nick-fields/retry@v2
-        with:
-          timeout_seconds: 180
-          max_attempts: 3
-          command: |
-            docker compose -f compose.test.yaml exec -T php php -d memory_limit=1G -d xdebug.mode=coverage bin/phpunit --testsuite Unit &&
-            docker compose -f compose.test.yaml exec -T php php -d memory_limit=1G -d xdebug.mode=coverage bin/phpunit --testsuite Repository
+        run: |
+          docker compose -f compose.test.yaml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Unit
+          docker compose -f compose.test.yaml exec -T php php -d xdebug.mode=coverage bin/phpunit --testsuite Repository
 
       - name: Show logs on failure
         if: failure()
