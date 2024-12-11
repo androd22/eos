@@ -1,4 +1,3 @@
-# .github/workflows/symfony.yml
 name: Symfony
 
 on:
@@ -44,7 +43,7 @@ jobs:
 
       - name: Wait for MySQL
         run: |
-          until docker compose -f compose.test.yaml exec db mysqladmin ping --silent; do
+          until docker compose -f compose.test.yaml exec -T db mysqladmin ping -h localhost -u root -psecret --silent; do
             echo "Waiting for MySQL to be ready..."
             sleep 2
           done
@@ -73,6 +72,13 @@ jobs:
 
       - name: Setup Database
         run: |
+          # Création de la base de données et attribution des droits
+          docker compose -f compose.test.yaml exec -T db mysql -uroot -psecret -e "
+            CREATE DATABASE IF NOT EXISTS eos_db_test;
+            GRANT ALL PRIVILEGES ON eos_db_test.* TO 'symfony'@'%';
+            FLUSH PRIVILEGES;
+          "
+          # Création du schéma et chargement des fixtures
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:database:create --if-not-exists --env=test
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
