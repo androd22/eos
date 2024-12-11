@@ -11,16 +11,9 @@ services:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
-    command: >
-      sh -c "
-        while ! php bin/console doctrine:query:sql 'SELECT 1' > /dev/null 2>&1; do
-          sleep 1;
-          echo 'Waiting for database...';
-        done;
-        frankenphp run --config /etc/caddy/Caddyfile --watch"
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_started
 
   db:
     image: mysql:8.0
@@ -29,13 +22,13 @@ services:
       MYSQL_DATABASE: eos_db_test
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfony
-    ports:
-      - '3306:3306'
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Accélère l'initialisation
+    command: --default-authentication-plugin=mysql_native_password  # Plus rapide que sha2
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "symfony", "--password=symfony"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
+      test: ["CMD-SHELL", "mysql -u symfony -psymfony -e 'SELECT 1' eos_db_test"]
+      interval: 1s
+      timeout: 2s
+      retries: 10
 
   phpmyadmin:
     image: phpmyadmin
@@ -45,8 +38,7 @@ services:
       PMA_USER: symfony
       PMA_PASSWORD: symfony
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   mailhog:
     image: mailhog/mailhog
