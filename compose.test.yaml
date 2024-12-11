@@ -6,7 +6,9 @@ services:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfony
-      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: eos_db
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     command:
       - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
@@ -35,6 +37,42 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - test_network
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyfpeos
+    environment:
+      PMA_HOST: db
+      PMA_USER: symfony
+      PMA_PASSWORD: symfony
+    ports:
+      - "8899:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - test_network
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhogfpeos
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - test_network
+
+  mercure:
+    image: dunglas/mercure
+    container_name: mereos
+    ports:
+      - "3000:80"
+    environment:
+      SERVER_NAME: localhost
+      MERCURE_PUBLISHER_JWT_KEY: !ChangeThisMercureHubJWTKey
+      MERCURE_SUBSCRIBER_JWT_KEY: !ChangeThisMercureHubJWTKey
     networks:
       - test_network
 
