@@ -11,7 +11,13 @@ services:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
-    command: sh -c "while ! nc -z db 3306; do sleep 1; done && frankenphp run --config /etc/caddy/Caddyfile --watch"
+    command: >
+      sh -c "
+        while ! php bin/console doctrine:query:sql 'SELECT 1' > /dev/null 2>&1; do
+          sleep 1;
+          echo 'Waiting for database...';
+        done;
+        frankenphp run --config /etc/caddy/Caddyfile --watch"
     depends_on:
       db:
         condition: service_healthy
