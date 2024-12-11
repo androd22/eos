@@ -27,14 +27,14 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Autorise un mot de passe vide pour root
-      MYSQL_DATABASE: eos_db_test
+      MYSQL_ROOT_PASSWORD: secret # Définit le mot de passe pour root
+      MYSQL_DATABASE: eos_db_test # Crée automatiquement la base eos_db_test
     command: >
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--password=secret"]
       interval: 5s
       timeout: 5s
       retries: 3
@@ -48,6 +48,8 @@ services:
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: secret
     depends_on:
       db:
         condition: service_healthy
