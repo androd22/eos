@@ -12,7 +12,7 @@ services:
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
     healthcheck:
-      test: ["CMD-SHELL", "mysql -h db -u symfony -psymfony eos_db_test -e 'SELECT 1;'"]
+      test: ["CMD", "php", "/app/bin/console", "--version"]
       interval: 5s
       timeout: 5s
       retries: 10
