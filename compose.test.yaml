@@ -7,6 +7,9 @@ services:
       MYSQL_DATABASE: eos_db_test
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfony
+      MYSQL_ROOT_HOST: '%'
+    command:
+      - --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=secret"]
       interval: 10s

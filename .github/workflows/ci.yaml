@@ -71,8 +71,9 @@ jobs:
           }
           "
 
-      - name: Setup Database
+      - name: Setup Database Schema and Load Fixtures
         run: |
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:drop --force --env=test || true
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
 
