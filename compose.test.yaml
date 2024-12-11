@@ -9,12 +9,19 @@ services:
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db_test?serverVersion=8.0
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
+    working_dir: /app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2019/metrics", "||", "exit", "1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    ports:
+      - "80:80"
+      - "2019:2019"
     depends_on:
       db:
         condition: service_healthy
