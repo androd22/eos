@@ -35,6 +35,11 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
+      - name: Fix permissions
+        run: |
+          chmod -R 777 var/
+          chmod -R 777 vendor/
+
       - name: Build Docker images
         run: docker compose -f compose.test.yaml build
 
@@ -51,8 +56,11 @@ jobs:
       - name: Wait for PHP
         timeout-minutes: 2
         run: |
+          docker compose -f compose.test.yaml ps
+          docker compose -f compose.test.yaml logs php
           until docker compose -f compose.test.yaml ps | grep php | grep "healthy"; do
             echo "Waiting for PHP to be ready..."
+            docker compose -f compose.test.yaml ps
             sleep 2
           done
 
@@ -68,9 +76,8 @@ jobs:
           }
           "
 
-      - name: Create Database
+      - name: Setup Database
         run: |
-          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:database:create --env=test --if-not-exists
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
 
