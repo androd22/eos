@@ -11,7 +11,7 @@ services:
       MYSQL_DATABASE: eos_db
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfony
-      MYSQL_ROOT_HOST: '%'  # Permet les connexions de n'importe où
+      MYSQL_ROOT_HOST: '%'
     command:
       - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
@@ -36,6 +36,8 @@ services:
       APP_ENV: test
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
       XDEBUG_MODE: coverage
+      MERCURE_JWT_SECRET: "!ChangeThisMercureHubJWTSecretKey!"
+      MERCURE_PUBLIC_URL: "http://localhost/.well-known/mercure"
     volumes:
       - .:/app
     depends_on:
