@@ -41,6 +41,13 @@ jobs:
       - name: Start containers
         run: docker compose -f compose.test.yaml up -d
 
+      - name: Wait for MySQL
+        run: |
+          until docker compose -f compose.test.yaml exec db mysqladmin ping --silent; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 2
+          done
+
       - name: Wait for containers
         timeout-minutes: 2
         run: |
@@ -62,8 +69,10 @@ jobs:
 
       - name: Show logs on failure
         if: failure()
-        run: docker compose -f compose.test.yaml logs
+        run: |
+          docker compose -f compose.test.yaml logs php
+          docker compose -f compose.test.yaml logs db
 
       - name: Clean up
         if: always()
-        run: docker compose -f compose.test.yaml down -v
+        run: docker compose -f compose.test.yaml down -v --remove-orphans
