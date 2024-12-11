@@ -18,19 +18,13 @@ services:
       - --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=secret"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     ports:
       - "3308:3306"
     networks:
       - test_network
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
 
   php:
     build:
@@ -42,21 +36,17 @@ services:
       APP_ENV: test
       DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
       XDEBUG_MODE: coverage
-      MERCURE_JWT_SECRET: "!ChangeThisMercureHubJWTSecretKey!"
-      MERCURE_PUBLIC_URL: "http://localhost/.well-known/mercure"
+      MERCURE_ENABLED: 0  # Désactive Mercure uniquement pour les tests
+      MERCURE_JWT_SECRET: 'test'  # Valeur factice pour les tests
     volumes:
       - .:/app
+    command: php -S 0.0.0.0:80 -t public
+    working_dir: /app
     depends_on:
       db:
         condition: service_healthy
     networks:
       - test_network
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
 
   mailhog:
     image: mailhog/mailhog
