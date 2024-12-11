@@ -28,7 +28,7 @@ services:
     container_name: phpfpeos
     environment:
       APP_ENV: test
-      DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db?serverVersion=8.0
+      DATABASE_URL: mysql://symfony:symfony@db:3306/eos_db_test?serverVersion=8.0
       XDEBUG_MODE: coverage
     volumes:
       - .:/app
