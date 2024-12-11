@@ -35,11 +35,6 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Fix permissions
-        run: |
-          chmod -R 777 var/
-          chmod -R 777 vendor/
-
       - name: Build Docker images
         run: docker compose -f compose.test.yaml build
 
