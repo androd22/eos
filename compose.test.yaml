@@ -11,11 +11,7 @@ services:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     working_dir: /app
-    healthcheck:
-      test: ["CMD", "php", "/app/bin/console", "--version"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+    command: sh -c "while ! nc -z db 3306; do sleep 1; done && frankenphp run --config /etc/caddy/Caddyfile --watch"
     depends_on:
       db:
         condition: service_healthy
