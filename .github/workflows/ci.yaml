@@ -1,3 +1,4 @@
+# .github/workflows/symfony.yml
 name: Symfony
 
 on:
@@ -53,9 +54,8 @@ jobs:
         run: |
           docker compose -f compose.test.yaml ps
           docker compose -f compose.test.yaml logs php
-          until docker compose -f compose.test.yaml ps | grep php | grep "healthy"; do
+          until docker compose -f compose.test.yaml exec -T php php -v > /dev/null 2>&1; do
             echo "Waiting for PHP to be ready..."
-            docker compose -f compose.test.yaml ps
             sleep 2
           done
 
@@ -63,7 +63,7 @@ jobs:
         run: |
           docker compose -f compose.test.yaml exec -T php php -r "
           try {
-              new PDO('mysql:host=db;dbname=eos_db_test', 'symfony', 'symfony');
+              new PDO('mysql:host=db', 'symfony', 'symfony');
               echo 'Database connection successful.';
           } catch (Exception \$e) {
               echo 'Database connection failed: ' . \$e->getMessage();
@@ -71,9 +71,9 @@ jobs:
           }
           "
 
-      - name: Setup Database Schema and Load Fixtures
+      - name: Setup Database
         run: |
-          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:drop --force --env=test || true
+          docker compose -f compose.test.yaml exec -T php php bin/console doctrine:database:create --if-not-exists --env=test
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:schema:create --env=test
           docker compose -f compose.test.yaml exec -T php php bin/console doctrine:fixtures:load --env=test --no-interaction
 

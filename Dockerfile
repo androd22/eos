@@ -33,8 +33,7 @@ COPY webpack.config.js ./
 
 # Installation des dépendances avec npm
 #RUN npm install
-#
-## Construction des assets
+# ## Construction des assets
 #RUN npm run dev
 
 RUN set -eux; \
@@ -52,7 +51,6 @@ RUN set -eux; \
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
 
-
 ###> recipes ###
 ###< recipes ###
 
@@ -65,10 +63,26 @@ ENTRYPOINT ["docker-entrypoint"]
 HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 
+# Test FrankenPHP image
+FROM frankenphp_base AS frankenphp_test
+
+ENV APP_ENV=test
+ENV XDEBUG_MODE=coverage
+
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+RUN set -eux; \
+    install-php-extensions \
+       xdebug \
+    ;
+
+COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
+
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
 
-ENV APP_ENV=dev XDEBUG_MODE=off
+ENV APP_ENV=dev
+ENV XDEBUG_MODE=off
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
