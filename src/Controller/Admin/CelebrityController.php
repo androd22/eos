@@ -33,6 +33,7 @@ class CelebrityController extends AbstractController
     {
         $celebrity = new Celebrity();
         $auction = new Auction();
+
         /****TEMPORAIRE****/
         $profession = $professionRepository->find(1); // ID du chanteur
         if ($profession) {
@@ -40,34 +41,68 @@ class CelebrityController extends AbstractController
         }
         $auction->setStatus("test");
         $auction->setCreatedBy($this->getUser());
-//        $product->setBatchNumber(213);
         /*******************************/
+
         $auction->setCelebrity($celebrity);
-//        $product->setAuction($auction);;
         $form = $this->createForm(CelebrityAuctionType::class, [
             'celebrity' => $celebrity,
             'auction' => $auction,
-//            'product' => $product,
         ] , [
             'auction_options' => ['is_celebrity_registration' => true]
         ]);
 
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            // Persist the entities
+
+            // Gestion de l'image
+            if ($imageFile = $form->get('celebrity')['image']->getData()) {
+                $newFilename = $this->handleFileUpload($imageFile, 'celebrities/images');
+                $data['celebrity']->setImage($newFilename);
+            }
+
+            // Gestion de la vidéo de présentation
+            if ($videoPresFile = $form->get('celebrity')['video_pres']->getData()) {
+                $newFilename = $this->handleFileUpload($videoPresFile, 'celebrities/videos');
+                $data['celebrity']->setVideoPres($newFilename);
+            }
+
+            // Gestion de la vidéo de remerciement
+            if ($videoThanksFile = $form->get('celebrity')['video_thanks']->getData()) {
+                $newFilename = $this->handleFileUpload($videoThanksFile, 'celebrities/videos');
+                $data['celebrity']->setVideoThanks($newFilename);
+            }
+
             $data['auction'] = $auction->setCreatedAt(new \DateTimeImmutable());
             $entityManager->persist($data['celebrity']);
             $entityManager->persist($data['auction']);
-//            $entityManager->persist($data['product']);
             $entityManager->flush();
-            $this->addFlash('success', 'La célébrité et  l\'enchère ont été créés avec succès.');
+
+            $this->addFlash('success', 'La célébrité et l\'enchère ont été créés avec succès.');
             return $this->redirectToRoute('app_dashboard');
         }
+
         return $this->render('admin/celebrity/new.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function handleFileUpload($file, $directory): string
+    {
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+        $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+
+        try {
+            $file->move(
+                $this->getParameter('kernel.project_dir') . '/public/uploads/' . $directory,
+                $newFilename
+            );
+        } catch (FileException $e) {
+            throw new \Exception('Une erreur est survenue lors de l\'upload du fichier');
+        }
+
+        return $newFilename;
     }
 
     #[Route('/{id}', name: 'admin_celebrity_show', methods: ['GET'])]

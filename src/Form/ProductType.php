@@ -41,13 +41,13 @@ class ProductType extends AbstractType
                     'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 ]
             ])
-            ->add('finalPrice', MoneyType::class, [
-                'label' => 'Prix final',
-                'currency' => 'EUR',
-                'attr' => [
-                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
-                ]
-            ])
+//            ->add('finalPrice', MoneyType::class, [
+//                'label' => 'Prix final',
+//                'currency' => 'EUR',
+//                'attr' => [
+//                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
+//                ]
+//            ])
             ->add('images', CollectionType::class, [
                 'entry_type' => ImageType::class,
                 'entry_options' => ['label' => false],

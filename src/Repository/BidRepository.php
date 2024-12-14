@@ -86,6 +86,26 @@ class BidRepository extends ServiceEntityRepository
         return floatval($result['total'] ?? 0);
     }
 
+    public function findLastBidByProduct(Product $product): ?Bid
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.product = :product')
+            ->setParameter('product', $product)
+            ->orderBy('b.id', 'DESC') // On prend le plus grand ID
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function getTotalWinnerAmount(): float
+    {
+        return (float) $this->createQueryBuilder('b')
+            ->select('SUM(b.amount)')
+            ->where('b.status = :status') // Suppose que "winner" est un statut ou une condition identifiable
+            ->setParameter('status', 'winner')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
 
 }

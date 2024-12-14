@@ -8,40 +8,53 @@
          style="display: none;">
     </div>
     <!-- Hero Section -->
-    <section class="lg:min-h-[50vh] pt-32 royal-gradient">
+    <section class=" lg:min-h-screen pt-32 royal-gradient">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl pt-12">
-                <span class="inline-block golden-gradient text-[#1D365B] text-sm font-medium px-6 py-2 rounded-full mb-8">
-                    Toutes nos enchères
-                </span>
+                    <span class="inline-block golden-gradient text-[#1D365B] text-sm font-medium px-6 py-2 rounded-full mb-8">
+                        Enchères caritatives
+                    </span>
                 <h2 class="text-6xl font-bold mb-8 leading-tight text-white">
-                    Des rencontres uniques
+                    Des moments d'exception
                     <br>
-                    <span class="golden-text">qui font la différence</span>
+                    <span class="golden-text">pour changer des vies</span>
                 </h2>
                 <p class="text-xl mb-12 leading-relaxed text-white opacity-90">
-                    Enchérissez sur des moments privilégiés avec vos célébrités préférées.
-                    100% des fonds récoltés sont reversés pour la création du Loft du Cœur.
+                    Participez à des expériences uniques avec des personnalités inspirantes. Ensemble, construisons le Loft du Cœur, un espace dédié à la réinsertion sociale et à l'entraide pour les plus démunis
                 </p>
+                <div class="flex space-x-6">
+                    <button class="btn-primary px-8 py-4 rounded-full font-medium">
+                        Découvrir les enchères
+                    </button>
+                    <button class="btn-outline px-8 py-4 rounded-full font-medium">
+                        Notre projet
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Stats -->
-        <div class="mt-12 sm:mt-24 pb-12">
+        <div class="mt-12 sm:mt-24 sm:pb-12 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:mb-12">
             <div class="container mx-auto px-4">
                 <div class="stat-card rounded-2xl p-4 sm:p-8">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8">
                         <div class="text-center">
-                            <p class="text-3xl font-bold golden-text">35</p>
-                            <p class="mt-2 font-medium text-[#234B6E]">Enchères actives</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-3xl font-bold golden-text">157 842€</p>
+                            <p class="text-3xl font-bold golden-text">{{ totalRaised }}€</p>
                             <p class="mt-2 font-medium text-[#234B6E]">Récoltés</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-3xl font-bold golden-text">50+</p>
+                            <p class="text-3xl font-bold golden-text">{{ nbCelebrity }}</p>
                             <p class="mt-2 font-medium text-[#234B6E]">Célébrités</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold golden-text">
+                                {% if percentage < 1 %}
+                                    {{ percentage|round(2) }} %
+                                {% else %}
+                                    {{ percentage|round(1) }} %
+                                {% endif %}
+                            </p>
+                            <p class="mt-2 font-medium text-[#234B6E]">Objectif</p>
                         </div>
                         <div class="text-center">
                             <p class="text-3xl font-bold golden-text">100%</p>
@@ -54,119 +67,100 @@
     </section>
 
     <!-- Filtres et Recherche -->
-    <section class="py-12 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="white-card p-6 rounded-xl">
-                <form class="grid md:grid-cols-4 gap-6">
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-[#234B6E] mb-2">Catégorie</label>
-                        <select id="category" name="category" class="w-full px-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">
-                            <option value="">Toutes les catégories</option>
-                            {% for profession in professions %}
-                                <option value="{{ profession.id }}">{{ profession.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-[#234B6E] mb-2">Prix</label>
-                        <select id="price" name="price" class="w-full px-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">
-                            <option value="">Tous les prix</option>
-                            <option value="asc">Prix croissant</option>
-                            <option value="desc">Prix décroissant</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-[#234B6E] mb-2">Statut</label>
-                        <select id="status" name="status" class="w-full px-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">
-                            <option value="">Tous les statuts</option>
-                            <option value="active">En cours</option>
-                            <option value="coming">À venir</option>
-                            <option value="ended">Terminées</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="search" class="block text-sm font-medium text-[#234B6E] mb-2">Rechercher</label>
-                        <div class="relative">
-                            <input type="search" id="search" name="q"
-                                   class="w-full pl-10 pr-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]"
-                                   placeholder="Rechercher une enchère...">
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#D4B054]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    {% if redirect is defined and redirect is not null %}
-                        <input type="hidden" name="_target_path" value="{{ redirect }}">
-                    {% endif %}
-                </form>
-            </div>
-        </div>
-    </section>
+{#    <section class="py-12 bg-white">#}
+{#        <div class="container mx-auto px-4">#}
+{#            <div class="white-card p-6 rounded-xl">#}
+{#                <form class="grid md:grid-cols-4 gap-6">#}
+{#                    <div>#}
+{#                        <label for="category" class="block text-sm font-medium text-[#234B6E] mb-2">Catégorie</label>#}
+{#                        <select id="category" name="category" class="w-full px-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">#}
+{#                            <option value="">Toutes les catégories</option>#}
+{#                            {% for profession in professions %}#}
+{#                                <option value="{{ profession.id }}">{{ profession.name }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </div>#}
+{#                    <div>#}
+{#                        <label for="price" class="block text-sm font-medium text-[#234B6E] mb-2">Prix</label>#}
+{#                        <select id="price" name="price" class="w-full px-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">#}
+{#                            <option value="">Tous les prix</option>#}
+{#                            <option value="asc">Prix croissant</option>#}
+{#                            <option value="desc">Prix décroissant</option>#}
+{#                        </select>#}
+{#                    </div>#}
+{#                    <div>#}
+{#                        <label for="status" class="block text-sm font-medium text-[#234B6E] mb-2">Statut</label>#}
+{#                        <select id="status" name="status" class="w-full px-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]">#}
+{#                            <option value="">Tous les statuts</option>#}
+{#                            <option value="active">En cours</option>#}
+{#                            <option value="coming">À venir</option>#}
+{#                            <option value="ended">Terminées</option>#}
+{#                        </select>#}
+{#                    </div>#}
+{#                    <div>#}
+{#                        <label for="search" class="block text-sm font-medium text-[#234B6E] mb-2">Rechercher</label>#}
+{#                        <div class="relative">#}
+{#                            <input type="search" id="search" name="q"#}
+{#                                   class="w-full pl-10 pr-4 py-2 rounded-xl border border-[#E8C98B] text-[#1D365B] focus:outline-none focus:ring-2 focus:ring-[#D4B054]"#}
+{#                                   placeholder="Rechercher une enchère...">#}
+{#                            <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#D4B054]" fill="none" stroke="currentColor" viewBox="0 0 24 24">#}
+{#                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>#}
+{#                            </svg>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    {% if redirect is defined and redirect is not null %}#}
+{#                        <input type="hidden" name="_target_path" value="{{ redirect }}">#}
+{#                    {% endif %}#}
+{#                </form>#}
+{#            </div>#}
+{#        </div>#}
+{#    </section>#}
 
     <!-- Liste des enchères -->
     <section class="py-12 bg-gray-50">
+        <h2 class="text-5xl font-bold mb-8 text-[#1D365B] text-center">Les enchères</h2>
         <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {% for auction in auctions %}
-                    <div class="white-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300" data-auction-id="{{ auction.id }}">
-                        <div class="relative">
-{#                            <img src="{{ auction.image }}" alt="{{ auction.name }}" class="w-full h-64 object-cover">#}
-                            <div class="absolute top-4 right-4">
-                                <span style="background: linear-gradient(135deg, #1D365B 0%, #234B6E 100%)"
-                                      class="text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg border border-white/20">
-                                    {{ auction.status }}
-                                </span>
-                            </div>
-                            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1D365B] to-transparent">
-                                <div class="flex items-center">
-{#                                    <img src="{{ auction.celebrity.image }}" alt="{{ auction.celebrity.stageName }}"#}
-                                         class="w-12 h-12 rounded-full border-2 border-[#D4B054]">
-                                    <div class="ml-3">
-                                        <h3 class="text-white font-bold">{{ auction.celebrity.stageName }}</h3>
-                                        <p class="golden-text text-sm">{{ auction.celebrity.profession.name }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h4 class="text-xl font-bold mb-3 text-[#1D365B]">{{ auction.name }}</h4>
-                            <p class="text-[#234B6E] mb-6">{{ auction.description|slice(0, 150) }}...</p>
-                            <div class="flex justify-between items-center mb-6">
-                                <div>
-                                    <p class="text-sm text-[#234B6E]">Enchère actuelle</p>
-                                    <p class="text-2xl font-bold golden-text" data-auction-total="{{ auction.id }}" data-bid-amount="{{ auction.id }}">
-                                        {% set totalAmount = auction.products|reduce((total, product) =>
-                                            total + (product.bids|length > 0 ? product.bids|last.amount : product.initialPrice), 0)
-                                        %}
-                                        {{ totalAmount|number_format(2, ',', ' ') }} €
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm text-[#234B6E]">Temps restant</p>
-                                    <p class="text-xl font-bold text-[#1D365B]"
-                                       data-countdown="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"
-                                       data-start-time="{{ auction.startedAt|date('Y-m-d H:i:s') }}"
-                                       data-auction-id="{{ auction.id }}">
-                                        --:--:--
-                                    </p>
-                                </div>
-                            </div>
-                            {% if auction.status is same as 'upcoming' %}
-                                <div class="mx-auto">
-                                    <p class="text-center">ENCHERE A VENIR </p>
-                                </div>
-                            {% else %}
-                                <a id="auctionParticipation" href="{{ is_granted('ROLE_USER')
-                                ? path('app_auction_show', {'id': auction.id})
-                                : path('app_login', {'redirect': path('app_auction_show', {'id': auction.id})}) }}"
-                                   class="block w-full btn-primary text-center py-4 rounded-xl font-medium">
-                                    {{ is_granted('ROLE_USER') ? 'Participer à l\'enchère' : 'Se connecter pour enchérir' }}
-                                </a>
-                            {% endif %}
-                        </div>
+            {# Enchères actives #}
+            {% if groupedAuctions.active|length > 0 %}
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold mb-8 text-[#1D365B]">
+                        <span class="golden-text">⚡</span> Enchères en cours
+                    </h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {% for auction in groupedAuctions.active %}
+                            {% include 'auction/_auction_card.html.twig' with {'auction': auction} %}
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endif %}
+
+            {# Enchères à venir #}
+            {% if groupedAuctions.upcoming|length > 0 %}
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold mb-8 text-[#1D365B]">
+                        <span class="golden-text">📅</span> Enchères à venir
+                    </h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {% for auction in groupedAuctions.upcoming %}
+                            {% include 'auction/_auction_card.html.twig' with {'auction': auction} %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Enchères terminées #}
+            {% if groupedAuctions.finished|length > 0 %}
+                <div>
+                    <h2 class="text-2xl font-bold mb-8 text-[#1D365B]">
+                        <span class="golden-text">🏁</span> Enchères terminées
+                    </h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {% for auction in groupedAuctions.finished %}
+                            {% include 'auction/_auction_card.html.twig' with {'auction': auction} %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
 
             <!-- Pagination -->
             {% if auctions.haveToPaginate is defined and auctions.haveToPaginate %}
@@ -181,7 +175,6 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-
         function updateAuctionDisplay(auctionId, data) {
             const bidElement = document.querySelector(`[data-bid-amount="${auctionId}"]`);
             if (bidElement && data.auctionTotal) {
@@ -190,6 +183,37 @@
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 })} €`;
+            }
+
+            if (data.newStatus) {
+                const auctionElement = document.querySelector(`[data-auction-id="${auctionId}"]`);
+                const statusBadge = auctionElement.querySelector('.status-badge');
+                const participateButton = auctionElement.querySelector('a.btn-primary');
+                const upcomingMessage = auctionElement.querySelector('.upcoming-message');
+                const finishedMessage = auctionElement.querySelector('.finished-message');
+                const videoPresentation = auctionElement.querySelector('.video-presentation');
+                const videoThanks = auctionElement.querySelector('.video-thanks');
+
+                if (statusBadge) {
+                    statusBadge.textContent = data.newStatus;
+                }
+
+                if (participateButton) {
+                    participateButton.style.display = data.newStatus === 'active' ? 'block' : 'none';
+                }
+                if (upcomingMessage) {
+                    upcomingMessage.style.display = data.newStatus === 'upcoming' ? 'block' : 'none';
+                }
+                if (finishedMessage) {
+                    finishedMessage.style.display = data.newStatus === 'finished' ? 'block' : 'none';
+                }
+
+                if (videoPresentation) {
+                    videoPresentation.style.display = (data.newStatus === 'upcoming' || data.newStatus === 'active') ? 'block' : 'none';
+                }
+                if (videoThanks) {
+                    videoThanks.style.display = data.newStatus === 'finished' ? 'block' : 'none';
+                }
             }
         }
 
@@ -203,33 +227,14 @@
                 const url = new URL(mercureUrl);
                 url.searchParams.append('topic', `auction/${auctionId}`);
 
-                console.log('Abonnement à:', url.toString());
-
                 const eventSource = new EventSource(url.toString(), {
                     withCredentials: false
                 });
 
                 eventSource.addEventListener('message', (e) => {
-                    console.log('Message reçu:', e.data);
                     try {
                         const data = JSON.parse(e.data);
-                        updateAuctionDisplay(auctionId, data); // Appel de la fonction ici
-                        if (data.newStatus) {
-                            const statusBadge = element.querySelector('.status-badge');
-                            const participateButton = element.querySelector('a.btn-primary');
-
-                            if (statusBadge) {
-                                statusBadge.textContent = data.newStatus;
-                            }
-
-                            if (participateButton) {
-                                if (data.newStatus === 'finished') {
-                                    participateButton.style.display = 'none';
-                                } else if (data.newStatus === 'active') {
-                                    participateButton.style.display = 'block';
-                                }
-                            }
-                        }
+                        updateAuctionDisplay(auctionId, data);
                     } catch (error) {
                         console.error('Erreur parsing:', error);
                     }
@@ -242,33 +247,54 @@
         }
 
         function initializeCountdowns() {
-            const countdowns = document.querySelectorAll('[data-countdown]');
-
             function updateCountdowns() {
-                countdowns.forEach(element => {
-                    const endTime = new Date(element.dataset.countdown).getTime();
+                document.querySelectorAll('[data-auction-id]').forEach(auctionCard => {
+                    const countdownElement = auctionCard.querySelector('[data-countdown]');
+                    if (!countdownElement) return;
+
+                    const startTime = new Date(countdownElement.dataset.startTime).getTime();
+                    const endTime = new Date(countdownElement.dataset.countdown).getTime();
                     const now = new Date().getTime();
-                    const distance = endTime - now;
 
-                    if (distance <= 0) {
-                        element.textContent = 'Terminée';
+                    const participateButton = auctionCard.querySelector('a.btn-primary');
+                    const upcomingMessage = auctionCard.querySelector('.upcoming-message');
+                    const finishedMessage = auctionCard.querySelector('.finished-message');
+                    const statusBadge = auctionCard.querySelector('.status-badge');
+                    const videoPresentation = auctionCard.querySelector('.video-presentation');
+                    const videoThanks = auctionCard.querySelector('.video-thanks');
 
-                        // Trouver le bouton d'action spécifique à cette enchère
-                        const auctionCard = element.closest('[data-auction-id]');
-                        if (auctionCard) {
-                            const participationButton = auctionCard.querySelector('a.btn-primary');
-                            if (participationButton) {
-                                participationButton.style.display = "none";
-                            }
-                        }
-                        return;
+                    if (now < startTime) {
+                        countdownElement.textContent = 'À venir';
+                        if (participateButton) participateButton.style.display = 'none';
+                        if (upcomingMessage) upcomingMessage.style.display = 'block';
+                        if (finishedMessage) finishedMessage.style.display = 'none';
+                        if (statusBadge) statusBadge.textContent = 'upcoming';
+                        if (videoPresentation) videoPresentation.style.display = 'block';
+                        if (videoThanks) videoThanks.style.display = 'none';
                     }
+                    else if (now >= endTime) {
+                        countdownElement.textContent = 'Terminée';
+                        if (participateButton) participateButton.style.display = 'none';
+                        if (upcomingMessage) upcomingMessage.style.display = 'none';
+                        if (finishedMessage) finishedMessage.style.display = 'block';
+                        if (statusBadge) statusBadge.textContent = 'finished';
+                        if (videoPresentation) videoPresentation.style.display = 'none';
+                        if (videoThanks) videoThanks.style.display = 'block';
+                    }
+                    else {
+                        const distance = endTime - now;
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    element.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        if (participateButton) participateButton.style.display = 'block';
+                        if (upcomingMessage) upcomingMessage.style.display = 'none';
+                        if (finishedMessage) finishedMessage.style.display = 'none';
+                        if (statusBadge) statusBadge.textContent = 'active';
+                        if (videoPresentation) videoPresentation.style.display = 'block';
+                        if (videoThanks) videoThanks.style.display = 'none';
+                    }
                 });
             }
 
@@ -284,62 +310,64 @@
                     try {
                         const response = await fetch(`/api/auction/${auctionId}/status`, {
                             method: 'GET',
-                            headers: {'X-Requested-With': 'XMLHttpRequest'}
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
                         });
 
-                        if (!response.ok) throw new Error('Erreur lors de la vérification du statut');
+                        if (!response.ok) {
+                            throw new Error('Erreur lors de la vérification du statut');
+                        }
 
                         const result = await response.json();
-                        const statusBadge = auctionElement.querySelector('.status-badge');
-                        const participateButton = auctionElement.querySelector('a.btn-primary');
-                        const countdownElement = auctionElement.querySelector('[data-countdown]');
 
-                        // Mettre à jour le status et l'interface
-                        if (statusBadge) statusBadge.textContent = result.currentStatus;
+                        if (result.success && result.currentStatus) {
+                            const statusBadge = auctionElement.querySelector('.status-badge');
+                            const participateButton = auctionElement.querySelector('a.btn-primary');
+                            const upcomingMessage = auctionElement.querySelector('.upcoming-message');
+                            const finishedMessage = auctionElement.querySelector('.finished-message');
+                            const videoPresentation = auctionElement.querySelector('.video-presentation');
+                            const videoThanks = auctionElement.querySelector('.video-thanks');
 
-                        // Gérer le bouton de participation selon le statut
-                        if (participateButton) {
+                            if (statusBadge) {
+                                statusBadge.textContent = result.currentStatus;
+                            }
+
+                            // Gestion de l'affichage selon le statut
                             if (result.currentStatus === 'finished') {
-                                participateButton.style.display = 'none';
+                                if (participateButton) participateButton.style.display = 'none';
+                                if (upcomingMessage) upcomingMessage.style.display = 'none';
+                                if (finishedMessage) finishedMessage.style.display = 'block';
+                                if (videoPresentation) videoPresentation.style.display = 'none';
+                                if (videoThanks) videoThanks.style.display = 'block';
                             } else if (result.currentStatus === 'active') {
-                                participateButton.style.display = 'block';
+                                if (participateButton) participateButton.style.display = 'block';
+                                if (upcomingMessage) upcomingMessage.style.display = 'none';
+                                if (finishedMessage) finishedMessage.style.display = 'none';
+                                if (videoPresentation) videoPresentation.style.display = 'block';
+                                if (videoThanks) videoThanks.style.display = 'none';
+                            } else if (result.currentStatus === 'upcoming') {
+                                if (participateButton) participateButton.style.display = 'none';
+                                if (upcomingMessage) upcomingMessage.style.display = 'block';
+                                if (finishedMessage) finishedMessage.style.display = 'none';
+                                if (videoPresentation) videoPresentation.style.display = 'block';
+                                if (videoThanks) videoThanks.style.display = 'none';
                             }
                         }
 
-                        // Planifier la prochaine vérification
-                        const now = new Date().getTime();
-                        const startTime = new Date(result.startTime).getTime();
-                        const endTime = new Date(result.endTime).getTime();
-
-                        let nextCheck = 5000; // 5 secondes par défaut
-                        if (Math.abs(now - startTime) < 60000 || Math.abs(now - endTime) < 60000) {
-                            nextCheck = 2000; // 2 secondes près des moments critiques
-                        }
-
-                        setTimeout(checkStatus, nextCheck);
-
+                        setTimeout(checkStatus, 5000);
                     } catch (error) {
-                        console.error('Erreur:', error);
+                        console.error('Erreur dans checkStatus:', error);
                         setTimeout(checkStatus, 5000);
                     }
                 }
 
-                // Démarrer la vérification pour cette enchère
                 checkStatus();
             });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Initialisation...');
             initializeCountdowns();
             initializeMercure();
             initializeAuctionStatusChecks();
-            document.querySelectorAll('a.btn-primary').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.location.href = this.href;
-                });
-            });
         });
     </script>
 {% endblock %}

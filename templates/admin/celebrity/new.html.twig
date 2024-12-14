@@ -5,7 +5,7 @@
 
 {% block body %}
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl  text-center font-bold mb-8 bg-white py-2 text-[#5E3B89]">Ajouter une célébrité</h1>
+        <h1 class="text-3xl text-center font-bold mb-8 bg-white py-2 text-[#5E3B89]">Ajouter une célébrité</h1>
 
         {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
         {# Section Célébrité #}
@@ -24,6 +24,30 @@
             </div>
         </div>
 
+        {# Section Médias #}
+        <div class="bg-white shadow-sm rounded-lg p-6">
+            <h2 class="text-xl text-white font-semibold py-2 px-2 mb-6 bg-[#5E3B89] hover:bg-[#4D3173]">Vidéos</h2>
+            <div class="space-y-6">
+                {# Vidéo de présentation #}
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Vidéo de présentation</h3>
+                    <div class="space-y-3">
+                        {{ form_row(form.celebrity.video_pres) }}
+                        {{ form_row(form.celebrity.video_pres_alt) }}
+                    </div>
+                </div>
+
+                {# Vidéo de remerciement #}
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Vidéo de remerciement</h3>
+                    <div class="space-y-3">
+                        {{ form_row(form.celebrity.video_thanks) }}
+                        {{ form_row(form.celebrity.video_thanks_alt) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {# Section Enchère #}
         <div class="bg-white shadow-sm rounded-lg p-6">
             <h2 class="text-xl text-white font-semibold mb-6 px-2 py-2 bg-[#5E3B89] hover:bg-[#4D3173]">Informations de l'enchère</h2>
@@ -32,7 +56,6 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {{ form_row(form.auction.startedAt) }}
-{#                {{ form_row(form.auction.createdAt) }}#}
                 {{ form_row(form.auction.finishedAt) }}
             </div>
             <div class="mt-6">

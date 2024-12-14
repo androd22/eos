@@ -277,3 +277,17 @@ body {
 .hover-lift:hover {
     transform: translateY(-2px);
 }
+
+/****home ambassadeurs***********/
+.celebrity-swiper .swiper-button-next,
+.celebrity-swiper .swiper-button-prev {
+    color: #D4B054;
+}
+
+.celebrity-swiper .swiper-pagination-bullet {
+    background: #D4B054;
+}
+
+.celebrity-swiper .swiper-pagination-bullet-active {
+    background: #D4B054;
+}

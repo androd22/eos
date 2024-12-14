@@ -3,6 +3,9 @@ namespace App\Controller;
 
 use App\DTO\ContactDTO;
 use App\Form\ContactType;
+use App\Repository\AuctionRepository;
+use App\Repository\BidRepository;
+use App\Repository\CelebrityRepository;
 use App\Service\EmailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,15 +19,45 @@ class HomeController extends AbstractController
     ) {}
 
     #[Route('/', name: 'app_home')]
-    public function index(Request $request): Response
+    public function index(Request $request, BidRepository $bidRepository, CelebrityRepository $celebrityRepository, AuctionRepository $auctionRepository): Response
     {
+        $celebrities = $celebrityRepository->findAll();
+        $nbCelebrity = $celebrityRepository->countCelebrities();
+        $totalRaised = $bidRepository->getTotalWinnerAmount();
+        $financialGoal = 3600000;
+        $formattedFinancialGoal = number_format($financialGoal, 0, '.', ' ');
+        $percentage = $financialGoal > 0 ? ($totalRaised / $financialGoal) * 100 : 0;
         $contactDTO = new ContactDTO();
         $form = $this->createForm(ContactType::class, $contactDTO, [
             'action' => $this->generateUrl('app_home_contact')  // Form action séparée
         ]);
 
+        $tailwindWidthClass = match (true) {
+            $percentage  < 1  => 'w-px',
+            $percentage <= 10 => 'w-1/12',
+            $percentage <= 20 => 'w-2/12',
+            $percentage <= 30 => 'w-3/12',
+            $percentage <= 40 => 'w-4/12',
+            $percentage <= 50 => 'w-5/12',
+            $percentage <= 60 => 'w-6/12',
+            $percentage <= 70 => 'w-7/12',
+            $percentage <= 80 => 'w-8/12',
+            $percentage <= 90 => 'w-9/12',
+            default => 'w-full',
+        };
+
         return $this->render('home/index.html.twig', [
-            'contactForm' => $form->createView()
+            'contactForm' => $form->createView(),
+            'totalRaised' => $totalRaised,
+            "nbCelebrity" => $nbCelebrity,
+            'percentage' => $percentage,
+            'formattedFinancialGoal' => $formattedFinancialGoal,
+            'tailwindWidthClass' => $tailwindWidthClass,
+            'celebrities' => $celebrities,
+            'auctions' => $auctionRepository->findBy(
+                ['status' => ['active', 'upcoming']],
+                ['startedAt' => 'ASC']
+            ),
         ]);
     }
 
