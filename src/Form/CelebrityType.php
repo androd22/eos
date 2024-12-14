@@ -48,7 +48,37 @@ class CelebrityType extends AbstractType
                 'attr' => [
                     'class' => 'mt-1 block w-full'
                 ]
-            ]);
+            ])
+            ->add('video_pres', FileType::class, [
+                'label' => 'Vidéo de présentation',
+                'required' => false,
+                'attr' => [
+                    'class' => 'mt-1 block w-full',
+                    'accept' => 'video/*'
+                ]
+            ])
+            ->add('video_pres_alt', TextType::class, [
+                'label' => 'Description de la vidéo de présentation',
+                'required' => false,
+                'attr' => [
+                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50',
+                ]
+            ])
+            ->add('video_thanks', FileType::class, [
+                'label' => 'Vidéo de remerciement',
+                'required' => false,
+                'attr' => [
+                    'class' => 'mt-1 block w-full',
+                    'accept' => 'video/*'
+                ]
+            ])
+            ->add('video_thanks_alt', TextType::class, [
+                'label' => 'Description de la vidéo de remerciement',
+                'required' => false,
+                'attr' => [
+                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50',
+                ]
+            ])
         ;
     }
 

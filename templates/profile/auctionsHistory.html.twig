@@ -1,0 +1,218 @@
+
+{% block body %}
+    <section class="pt-32">
+        <div class="container mx-auto px-4">
+            <div class="mb-12">
+            <span class="inline-block golden-gradient text-[#1D365B] text-sm font-medium px-6 py-2 rounded-full mb-4">
+                Mes enchères
+            </span>
+                <h1 class="text-4xl font-bold text-[#1D365B] mb-4">Historique des enchères</h1>
+                <p class="text-[#234B6E]">Retrouvez l'ensemble de vos enchères et suivez leur évolution.</p>
+            </div>
+
+            <!-- Enchères remportées -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-[#1D365B] mb-6">
+                    <span class="golden-text">🏆</span> Enchères remportées
+                </h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% set hasWonAuctions = false %}
+                    {% for bid in bids %}
+                        {% if bid.isWinner %}
+                            {% set hasWonAuctions = true %}
+                            <div class="white-card rounded-xl overflow-hidden hover:scale-105 transition-all duration-300">
+                                <div class="relative">
+                                    {% if bid.product.images|length > 0 %}
+                                        {% for image in bid.product.images %}
+                                        <img src="{{ asset('uploads/products/' ~ image.src) }}"
+                                             alt="{{ bid.product.name }}"
+                                             class="w-full h-48 object-cover">
+                                        {% endfor %}
+                                    {% else %}
+                                        <img src="/api/placeholder/400/300" alt="Image par défaut"
+                                             class="w-full h-48 object-cover">
+                                    {% endif %}
+                                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1D365B] to-transparent">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-white font-bold">Remportée le</p>
+                                            <p class="text-white">{{ bid.createdAt|date('d/m/Y') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-[#1D365B] mb-2">
+                                                {{ bid.product.auction.name }}
+                                            </h3>
+                                            <p class="text-[#234B6E]">{{ bid.product.name }}</p>
+                                        </div>
+                                        <span class="golden-gradient text-[#1D365B] px-3 py-1 rounded-full text-sm font-medium">
+                                        Remportée
+                                    </span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                                        <div>
+                                            <p class="text-sm text-[#234B6E]">Prix final</p>
+                                            <p class="text-xl font-bold golden-text">{{ bid.amount }}€</p>
+                                        </div>
+                                        <a href="{{ path('app_auction_show', {id: bid.product.auction.id}) }}"
+                                           class="text-[#1D365B] hover:text-[#D4B054] font-medium">
+                                            Voir les détails →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not hasWonAuctions %}
+                        <div class="md:col-span-2 lg:col-span-3">
+                            <div class="white-card p-8 rounded-xl text-center">
+                                <p class="text-[#234B6E] mb-4">Vous n'avez pas encore remporté d'enchère.</p>
+                                <a href="{{ path('app_auctions') }}" class="btn-primary px-6 py-3 rounded-lg inline-block">
+                                    Découvrir les enchères en cours
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enchères actives -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-[#1D365B] mb-6">
+                    <span class="golden-text">⚡</span> Enchères en cours
+                </h2>
+                <div class="white-card rounded-xl overflow-hidden">
+                    {% set hasActiveAuctions = false %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                            <tr class="text-left bg-gray-50">
+                                <th class="p-4 font-medium text-[#1D365B]">Enchère</th>
+                                <th class="p-4 font-medium text-[#1D365B]">Produit</th>
+                                <th class="p-4 font-medium text-[#1D365B]">Votre enchère</th>
+                                <th class="p-4 font-medium text-[#1D365B]">Enchère actuelle</th>
+                                <th class="p-4 font-medium text-[#1D365B]">Statut</th>
+                                <th class="p-4 font-medium text-[#1D365B]">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for bid in bids %}
+                                {% if not bid.product.auction.isFinished %}
+                                    {% set hasActiveAuctions = true %}
+                                    <tr class="border-t border-gray-100 hover:bg-gray-50">
+                                        <td class="p-4">
+                                            <p class="font-medium text-[#1D365B]">{{ bid.product.auction.name }}</p>
+                                            <p class="text-sm text-[#234B6E]">
+                                                Fin le {{ bid.product.auction.finishedAt|date('d/m/Y H:i') }}
+                                            </p>
+                                        </td>
+                                        <td class="p-4">{{ bid.product.name }}</td>
+                                        <td class="p-4">
+                                            <span class="font-medium golden-text">{{ bid.amount }}€</span>
+                                        </td>
+                                        <td class="p-4">
+                                            {% set highestBid = bid.product.bids|last %}
+                                            <span class="font-medium {% if highestBid.amount > bid.amount %}text-red-500{% else %}text-green-500{% endif %}">
+                                                {{ highestBid.amount }}€
+                                            </span>
+                                        </td>
+                                        <td class="p-4">
+                                            {% if highestBid.amount > bid.amount %}
+                                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">Dépassée</span>
+                                            {% else %}
+                                                <span class="px-3 py-1 golden-gradient text-[#1D365B] rounded-full text-sm">Meilleure offre</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="p-4">
+                                            <a href="{{ path('app_auction_show', {id: bid.product.auction.id}) }}"
+                                               class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                                Enchérir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            {% if not hasActiveAuctions %}
+                                <tr>
+                                    <td colspan="6" class="p-8 text-center text-[#234B6E]">
+                                        Vous n'avez pas d'enchères en cours
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autres enchères passées -->
+            <div>
+                <h2 class="text-2xl font-bold text-[#1D365B] mb-6">
+                    <span class="golden-text">📜</span> Historique complet
+                </h2>
+                <div class="white-card rounded-xl">
+                    {% set finishedAuctions = [] %}
+                    {% for bid in bids|filter(bid => bid.product.auction.isFinished) %}
+                        {% set auctionId = bid.product.auction.id %}
+                        {% if auctionId not in finishedAuctions %}
+                            {% set finishedAuctions = finishedAuctions|merge([auctionId]) %}
+                            <div class="p-6 {% if not loop.first %}border-t border-gray-100{% endif %}">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h3 class="font-bold text-[#1D365B] mb-1">{{ bid.product.auction.name }}</h3>
+                                        <p class="text-sm text-[#234B6E]">
+                                            Du {{ bid.product.auction.startedAt|date('d/m/Y') }} au {{ bid.product.auction.finishedAt|date('d/m/Y') }}
+                                        </p>
+                                    </div>
+                                    <button onclick="toggleAuctionDetails('auction-{{ auctionId }}')"
+                                            class="text-[#234B6E] hover:text-[#D4B054]">
+                                        <span id="toggle-text-{{ auctionId }}">Voir les détails</span>
+                                        <span id="toggle-icon-{{ auctionId }}">▼</span>
+                                    </button>
+                                </div>
+                                <div id="auction-{{ auctionId }}" class="hidden mt-4">
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <h4 class="font-medium text-[#1D365B] mb-3">Vos enchères sur cette vente</h4>
+                                        <div class="space-y-2">
+                                            {% for auctionBid in bids|filter(b => b.product.auction.id == auctionId) %}
+                                                <div class="flex justify-between items-center">
+                                                    <div>
+                                                        <p class="font-medium text-[#1D365B]">{{ auctionBid.product.name }}</p>
+                                                        <p class="text-sm text-[#234B6E]">{{ auctionBid.createdAt|date('d/m/Y H:i') }}</p>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <p class="font-medium golden-text">{{ auctionBid.amount }}€</p>
+                                                        {% if auctionBid.isWinner %}
+                                                            <span class="px-2 py-1 golden-gradient text-[#1D365B] rounded text-xs">
+                                                            Remportée
+                                                        </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleAuctionDetails(auctionId) {
+            const element = document.getElementById(auctionId);
+            const toggleId = auctionId.replace('auction-', '');
+            const textElement = document.getElementById(`toggle-text-${toggleId}`);
+            const iconElement = document.getElementById(`toggle-icon-${toggleId}`);
+
+            element.classList.toggle('hidden');
+            textElement.textContent = element.classList.contains('hidden') ? 'Voir les détails' : 'Masquer les détails';
+            iconElement.textContent = element.classList.contains('hidden') ? '▼' : '▲';
+        }
+    </script>
+{% endblock %}

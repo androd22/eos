@@ -1,0 +1,57 @@
+{# templates/profile/edit_address.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'adresse - 3eos{% endblock %}
+
+{% block body %}
+    <section class="pt-32">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto">
+                <div class="mb-12">
+                <span class="inline-block golden-gradient text-[#1D365B] text-sm font-medium px-6 py-2 rounded-full mb-4">
+                    Modifier l'adresse
+                </span>
+                    <h1 class="text-4xl font-bold text-[#1D365B] mb-4">{{ address.nameRes }}</h1>
+                </div>
+
+                <div class="white-card p-8 rounded-xl">
+                    {{ form_start(addressForm, {'attr': {'class': 'space-y-6'}}) }}
+                    <div>
+                        {{ form_label(addressForm.name_res, 'Nom de la résidence', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                        {{ form_widget(addressForm.name_res, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                        {{ form_errors(addressForm.name_res) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(addressForm.street, 'Rue', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                        {{ form_widget(addressForm.street, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                        {{ form_errors(addressForm.street) }}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            {{ form_label(addressForm.zipcode, 'Code postal', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                            {{ form_widget(addressForm.zipcode, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                            {{ form_errors(addressForm.zipcode) }}
+                        </div>
+                        <div>
+                            {{ form_label(addressForm.city, 'Ville', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                            {{ form_widget(addressForm.city, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                            {{ form_errors(addressForm.city) }}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <a href="{{ path('app_profile') }}" class="btn-outline px-6 py-3 rounded-lg">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn-primary px-8 py-3 rounded-lg hover-lift">
+                            Sauvegarder
+                        </button>
+                    </div>
+                    {{ form_end(addressForm) }}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

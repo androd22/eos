@@ -1,20 +1,206 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProfileController!{% endblock %}
+{% block title %}Mon Profil - 3eos{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <section class="pt-32 min-h-screen">
+        <div class="container mx-auto px-4">
+            <!-- En-tête du profil -->
+            <div class="mb-12">
+            <span class="inline-block golden-gradient text-[#1D365B] text-sm font-medium px-6 py-2 rounded-full mb-4">
+                Mon Profil
+            </span>
+                <h1 class="text-4xl font-bold text-[#1D365B] mb-4">Bienvenue, {{ app.user.firstName }}</h1>
+                <p class="text-[#234B6E]">Gérez vos informations personnelles et vos adresses</p>
+            </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+            <!-- Grille principale -->
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Colonne de gauche : Menu de navigation -->
+                <div class="lg:col-span-1">
+                    <div class="white-card p-6 rounded-xl sticky top-24">
+                        <nav class="space-y-2">
+                            <button class="w-full text-left px-4 py-3 rounded-lg text-[#1D365B] hover:golden-gradient transition-all duration-300 font-medium"
+                                    data-tab="personal-info">
+                                Informations personnelles
+                            </button>
+                            <button class="w-full text-left px-4 py-3 rounded-lg text-[#1D365B] hover:golden-gradient transition-all duration-300 font-medium"
+                                    data-tab="addresses">
+                                Mes adresses
+                            </button>
+                            <button class="w-full text-left px-4 py-3 rounded-lg text-[#1D365B] hover:golden-gradient transition-all duration-300 font-medium"
+                                    data-tab="auctions">
+                                Mes enchères
+                            </button>
+                            <button class="w-full text-left px-4 py-3 rounded-lg text-[#1D365B] hover:golden-gradient transition-all duration-300 font-medium"
+                                    data-tab="security">
+                                Sécurité
+                            </button>
+                        </nav>
+                    </div>
+                </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/app/src/Controller/ProfileController.php</code></li>
-        <li>Your template at <code>/app/templates/profile/index.html.twig</code></li>
-    </ul>
-</div>
+                <!-- Colonne principale : Contenu -->
+                <div class="lg:col-span-2">
+                    <!-- Informations personnelles -->
+                    <div class="tab-content" id="personal-info">
+                        <div class="white-card p-8 rounded-xl mb-8">
+                            <h2 class="text-2xl font-bold text-[#1D365B] mb-6">Informations personnelles</h2>
+                            {{ form_start(profileForm, {'attr': {'class': 'space-y-6'}}) }}
+                            <div>
+                                {#                                {{ form_label(profileForm.email, 'Email', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}#}
+                                {{ form_widget(profileForm.email, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054] bg-gray-200'}}) }}
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    {{ form_label(profileForm.firstName, 'Prénom', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                    {{ form_widget(profileForm.firstName, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                                </div>
+                                <div>
+                                    {{ form_label(profileForm.lastName, 'Nom', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                    {{ form_widget(profileForm.lastName, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                                </div>
+                            </div>
+                            <div>
+                                {{ form_label(profileForm.telephone, 'Téléphone', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                {{ form_widget(profileForm.telephone, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                            </div>
+                            <button type="submit" class="btn-primary px-8 py-3 rounded-lg hover-lift">
+                                Sauvegarder les modifications
+                            </button>
+                            {{ form_end(profileForm) }}
+                        </div>
+                    </div>
+
+                    <!-- Gestion des adresses -->
+                    <div class="tab-content hidden" id="addresses">
+                        <div class="white-card p-8 rounded-xl mb-8">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold text-[#1D365B]">Mes adresses</h2>
+                                <button class="btn-primary px-6 py-2 rounded-lg hover-lift" onclick="toggleAddressForm()">
+                                    Ajouter une adresse
+                                </button>
+                            </div>
+
+                            <!-- Formulaire d'ajout d'adresse (caché par défaut) -->
+                            <div id="address-form" class="hidden mb-8 p-6 soft-gold rounded-xl">
+                                {{ form_start(addressForm, {'attr': {'class': 'space-y-6'}}) }}
+                                <div>
+                                    {{ form_label(addressForm.name_res, 'Nom de la résidence', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                    {{ form_widget(addressForm.name_res, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                                </div>
+                                <div>
+                                    {{ form_label(addressForm.street, 'Rue', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                    {{ form_widget(addressForm.street, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        {{ form_label(addressForm.zipcode, 'Code postal', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                        {{ form_widget(addressForm.zipcode, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                                    </div>
+                                    <div>
+                                        {{ form_label(addressForm.city, 'Ville', {'label_attr': {'class': 'block text-[#1D365B] mb-2'}}) }}
+                                        {{ form_widget(addressForm.city, {'attr': {'class': 'w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4B054]'}}) }}
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary px-8 py-3 rounded-lg hover-lift">
+                                    Sauvegarder l'adresse
+                                </button>
+                                {{ form_end(addressForm) }}
+                            </div>
+
+                            <!-- Liste des adresses -->
+                            <div class="grid gap-6">
+                                {% for address in addresses %}
+                                    <div class="border border-gray-200 p-6 rounded-xl hover:border-[#D4B054] transition-all duration-300">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h3 class="font-bold text-[#1D365B] mb-2">{{ address.nameRes }}</h3>
+                                                <p class="text-[#234B6E]">{{ address.street }}</p>
+                                                <p class="text-[#234B6E]">{{ address.zipcode }} {{ address.city }}</p>
+                                            </div>
+                                            <div class="flex space-x-4">
+                                                <a href="{{ path('app_profile_address_edit', {'id': address.id}) }}"
+                                                   class="text-[#234B6E] hover:text-[#D4B054]">
+                                                    Modifier
+                                                </a>
+                                                <form method="post" action="{{ path('app_profile_address_delete', {'id': address.id}) }}"
+                                                      class="inline"
+                                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ address.id) }}">
+                                                    <button type="submit" class="text-red-500 hover:text-red-700">Supprimer</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Enchères -->
+                    <div class="tab-content hidden" id="auctions">
+                        {{ render(controller('App\\Controller\\ProfileController::auctions')) }}
+                    </div>
+
+                    <!-- Section Sécurité -->
+                    <div class="tab-content hidden" id="security">
+                        <div class="white-card p-8 rounded-xl">
+                            <h2 class="text-2xl font-bold text-[#1D365B] mb-6">Sécurité du compte</h2>
+
+                            <!-- Modification du mot de passe -->
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-[#1D365B] mb-4">Modifier le mot de passe</h3>
+                                {{ render(controller('App\\Controller\\ProfileController::security')) }}
+                            </div>
+
+                            <!-- Vérification KYC -->
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-xl font-bold text-[#1D365B]">Vérification KYC</h3>
+                                    <span class="px-4 py-1 rounded-full text-sm {% if app.user.isKycVerified %}golden-gradient text-[#1D365B]{% else %}bg-gray-100 text-gray-600{% endif %}">
+                    {{ app.user.isKycVerified ? 'Vérifié' : 'Non vérifié' }}
+                </span>
+                                </div>
+                                {% if not app.user.isKycVerified %}
+                                    <p class="text-[#234B6E] mb-4">La vérification KYC est nécessaire pour participer aux enchères de grande valeur.</p>
+                                    <a href="#" class="btn-primary px-6 py-2 rounded-lg inline-block">
+                                        Lancer la vérification
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion des onglets
+            const tabs = document.querySelectorAll('[data-tab]');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Désactive tous les onglets
+                    tabs.forEach(t => t.classList.remove('golden-gradient'));
+                    contents.forEach(c => c.classList.add('hidden'));
+
+                    // Active l'onglet sélectionné
+                    tab.classList.add('golden-gradient');
+                    document.getElementById(tab.dataset.tab).classList.remove('hidden');
+                });
+            });
+
+            // Active le premier onglet par défaut
+            tabs[0].click();
+        });
+
+        function toggleAddressForm() {
+            const form = document.getElementById('address-form');
+            form.classList.toggle('hidden');
+        }
+    </script>
 {% endblock %}

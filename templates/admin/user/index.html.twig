@@ -17,7 +17,6 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">FirstName</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">LastName</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Telephone</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Image</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">IsKycVerified</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">IsVerified</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
@@ -40,9 +39,6 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-[#1D365B]">{{ user.firstName }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-[#1D365B]">{{ user.lastName }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-[#1D365B]">{{ user.telephone }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#1D365B]">
-                            <img src="{{ user.image }}" alt="" class="w-20 h-20 rounded-lg object-cover">
-                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ user.isKycVerified ? 'bg-[#5693a8]/20 text-[#234B6E]' : 'bg-red-100 text-red-800' }}">
                                 {{ user.isKycVerified ? 'Yes' : 'No' }}
@@ -72,7 +68,6 @@
                     <div class="p-4 border-b border-gray-200 bg-[#234B6E]">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <img src="{{ user.image }}" alt="" class="w-12 h-12 rounded-full object-cover">
                                 <div>
                                     <h3 class="text-white font-medium">{{ user.firstName }} {{ user.lastName }}</h3>
                                     <p class="text-[#5693a8] text-sm">ID: {{ user.id }}</p>

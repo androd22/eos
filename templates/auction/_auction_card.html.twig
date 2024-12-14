@@ -1,0 +1,89 @@
+<div class="white-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300" data-auction-id="{{ auction.id }}">
+    <div class="relative">
+        <div class="absolute top-4 right-4">
+            <span style="background: linear-gradient(135deg, #1D365B 0%, #234B6E 100%)" class="status-badge text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg border border-white/20">
+                {{ auction.status }}
+            </span>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1D365B] to-transparent">
+            <div class="flex items-center">
+                <div class="ml-3">
+                    <h3 class="text-white font-bold">{{ auction.celebrity.stageName }}</h3>
+                    <p class="golden-text text-sm">{{ auction.celebrity.profession.name }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-6">
+        <h4 class="text-xl font-bold mb-3 text-[#1D365B]">{{ auction.name }}</h4>
+        <p class="text-[#234B6E] mb-6">{{ auction.description|slice(0, 150) }}...</p>
+        <div class="video-container my-4">
+            <div class="video-presentation" style="display: {{ auction.status in ['upcoming', 'active'] ? 'block' : 'none' }}">
+                {% if auction.celebrity.videoPres %}
+                    <video width="100%" height="auto" controls class="rounded-lg">
+                        <source src="{{ asset('uploads/celebrities/videos/' ~ auction.celebrity.videoPres) }}" type="video/mp4">
+                        {{ auction.celebrity.videoPresAlt }}
+                    </video>
+                {% endif %}
+            </div>
+            <div class="video-thanks" style="display: {{ auction.status == 'finished' ? 'block' : 'none' }}">
+                {% if auction.celebrity.videoThanks %}
+                    <video width="100%" height="auto" controls class="rounded-lg">
+                        <source src="{{ asset('uploads/celebrities/videos/' ~ auction.celebrity.videoThanks) }}" type="video/mp4">
+                        {{ auction.celebrity.videoThanksAlt }}
+                    </video>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Affichage des prix et enchères -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <p class="text-sm text-[#234B6E]">Prix de départ</p>
+                <p class="text-xl font-medium text-[#234B6E]">
+                    {% set initialTotal = auction.products|reduce((total, product) => total + product.initialPrice, 0) %}
+                    {{ initialTotal|number_format(2, ',', ' ') }} €
+                </p>
+
+                <p class="text-sm text-[#234B6E] mt-4">Enchère actuelle</p>
+                <p class="text-2xl font-bold golden-text" data-auction-total="{{ auction.id }}" data-bid-amount="{{ auction.id }}">
+                    {% set currentTotal = auction.products|reduce((total, product) =>
+                        total + (product.bids|length > 0 ? product.bids|last.amount : product.initialPrice), 0)
+                    %}
+                    {% if currentTotal > initialTotal %}
+                        {{ currentTotal|number_format(2, ',', ' ') }} €
+                    {% else %}
+                        Aucune enchère
+                    {% endif %}
+                </p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-[#234B6E]">Temps restant</p>
+                <p class="text-xl font-bold text-[#1D365B]"
+                   data-countdown="{{ auction.finishedAt|date('Y-m-d H:i:s') }}"
+                   data-start-time="{{ auction.startedAt|date('Y-m-d H:i:s') }}"
+                   data-auction-id="{{ auction.id }}">
+                    --:--:--
+                </p>
+            </div>
+        </div>
+
+        <!-- Section vidéo -->
+
+
+        <div class="auction-action-container">
+            <div class="upcoming-message mx-auto" style="display: {{ auction.status is same as 'upcoming' ? 'block' : 'none' }}">
+                <p class="text-center">ENCHERE A VENIR</p>
+            </div>
+
+            <a href="{{ is_granted('ROLE_USER') ? path('app_auction_show', {'id': auction.id}) : path('app_login', {'redirect': path('app_auction_show', {'id': auction.id})}) }}"
+               class="block w-full btn-primary text-center py-4 rounded-xl font-medium"
+               style="display: {{ auction.status is same as 'active' ? 'block' : 'none' }}">
+                {{ is_granted('ROLE_USER') ? 'Participer à l\'enchère' : 'Se connecter pour enchérir' }}
+            </a>
+
+            <div class="finished-message mx-auto" style="display: {{ auction.status is same as 'finished' ? 'block' : 'none' }}">
+                <p class="text-center">ENCHERE TERMINEE</p>
+            </div>
+        </div>
+    </div>
+</div>
